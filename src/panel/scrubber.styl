@@ -1,0 +1,65 @@
+/**
+ * (c) 2017 Hajime Yamasaki Vukelic
+ * All rights reserved.
+ */
+
+.scrubber
+  align-content center
+  display flex
+  height 2rem
+  justify-content space-between
+
+.buttons
+  display inline-block
+  height 2rem
+  text-align center
+  vertical-align middle
+  white-space nowrap
+  width 7rem
+
+.button
+  background transparent
+  border 0
+  cursor pointer
+  font-size 160%
+  padding 0.2rem
+
+.disabled
+  opacity 0.2;
+
+.progress
+  display inline-block
+  height 31px
+  position relative
+  vertical-align middle
+  width 100%
+
+.bar
+  background #444444
+  border-radius 1px
+  height 3px
+  left 15px
+  position absolute
+  right 15px
+  top 15px
+
+.handle
+  background #777777
+  border 1px solid #dddddd
+  border-radius 16px
+  box-shadow 0 2px 5px transparentify(black, 0.3)
+  height 31px
+  position absolute
+  top -15px
+  transform translateX(-16px)
+  transition all 0.2s
+  width 31px
+
+.position
+  display inline-block
+  font-family monospace
+  font-size 90%
+  line-height 2rem
+  padding 0 0.5rem
+  vertical-align middle
+  white-space nowrap

@@ -1,0 +1,67 @@
+{
+  "name": "duckweed-devtool",
+  "version": "0.0.0",
+  "description": "Developer tool for inspecting, exporting, and importing Duckweed app models",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "jest",
+    "start": "jest --watch",
+    "build": "webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/foxbunny/duckweed-devtool.git"
+  },
+  "keywords": [
+    "duckweed",
+    "development",
+    "javascript"
+  ],
+  "author": "Hajime Yamasaki Vukelic",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/foxbunny/duckweed-devtool/issues"
+  },
+  "homepage": "https://github.com/foxbunny/duckweed-devtool#readme",
+  "devDependencies": {
+    "@types/jest": "^20.0.8",
+    "@types/webpack": "^3.0.10",
+    "@types/webpack-env": "^1.13.0",
+    "autoprefixer": "^7.1.3",
+    "css-loader": "^0.28.7",
+    "jest": "^21.0.1",
+    "postcss-loader": "^2.0.6",
+    "style-loader": "^0.18.2",
+    "stylus": "^0.54.5",
+    "stylus-loader": "^3.0.1",
+    "ts-jest": "^20.0.14",
+    "ts-loader": "^2.3.4",
+    "tslint": "^5.7.0",
+    "tslint-loader": "^3.5.3",
+    "typescript": "^2.5.2",
+    "webpack": "^3.5.5"
+  },
+  "dependencies": {
+    "duckweed": "^0.6.0",
+    "es6-object-assign": "^1.1.0"
+  },
+  "jest": {
+    "moduleDirectories": [
+      "src",
+      "node_modules"
+    ],
+    "testRegex": "\\.test\\.tsx?$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js"
+    ],
+    "moduleNameMapper": {
+      "\\.styl$": "identity-obj-proxy"
+    },
+    "transform": {
+      "\\.(ts|tsx)$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "mapCoverage": true
+  }
+}

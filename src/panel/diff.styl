@@ -1,0 +1,72 @@
+/**
+ * (c) 2017 Hajime Yamasaki Vukelic
+ * All rights reserved.
+ */
+
+.diffPane
+  padding 1rem;
+
+.breadcrumbs
+  border-bottom 1px solid #ddd
+  margin-bottom 0.2rem
+  padding-bottom 0.2rem
+
+.crumb
+  cursor pointer
+  display inline-block
+  font-family monospace
+  padding 0.1rem 0.4rem
+
+  &hover
+    text-decoration underline
+
+  &pre
+    content "."
+
+.keyVal
+  display flex
+  font-family monospace
+  justify-content space-between
+
+.key
+  display inline-block
+  width 5rem
+
+.val
+  display inline-flex
+  justify-content space-between
+  overflow hidden
+  width 100%
+
+.expandObject
+  background transparentify(black, 0.6)
+  border-radius 3px
+  color #889900
+  cursor pointer
+  display inline-block
+  margin-right 0.3rem
+  padding 0.1rem 0.2rem
+
+  &hover
+    color white
+
+.preview
+  display inline-block
+  opacity 0.5
+  overflow hidden
+  text-overflow ellipsis
+  white-space nowrap
+  width 100%
+
+.ident
+  color inherit
+
+.update
+  color #5a26a8
+
+.add
+  color #83a826
+
+.del
+  color #a82626
+  text-decoration line-through
