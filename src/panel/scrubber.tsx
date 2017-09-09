@@ -100,14 +100,14 @@ const mouseEventW = (event: MouseEvent) =>
 const view = ({model, act, jumpTo, clear, current, length}: Props) => {
   const hasPrev = current > 0;
   const hasNext = current < length - 1;
-  const atEnd = length === 1 || current === length - 1;
+  const canClear = length > 1;
   const jumpBack = hasPrev ? jumpTo(current - 1) : undefined;
   const jumpNext = hasNext ? jumpTo(current + 1) : undefined;
   return (
     <div class={css.scrubber}>
       <div class={css.buttons}>
         <button class={cls(css.prev, !hasPrev)} on-click={jumpBack}>previous state</button>
-        <button class={cls(css.clear, atEnd)} on-click={atEnd ? undefined : clear()}>clear history</button>
+        <button class={cls(css.clear, !canClear)} on-click={canClear ? clear() : undefined}>clear history</button>
         <button class={cls(css.next, !hasNext)} on-click={jumpNext}>next state</button>
       </div>
       <div
