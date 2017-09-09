@@ -24,6 +24,14 @@ class Diff {
   constructor(public type: DiffType, public prev: any, public next: any) {}
 }
 
+const includes = (item: any, arr: any[]): boolean => arr.indexOf(item) > -1;
+
+const uniqueKeys = (...objs: any[]): string[] => {
+  return objs
+    .reduce((keys, o) => keys.concat(Object.keys(o)), [] as string[])
+    .reduce((keys: string[], k: string) => includes(k, keys) ? keys : keys.concat(k), [] as string[]);
+};
+
 /**
  * Generate a diff between two objects
  */
@@ -55,7 +63,7 @@ function diff(x: any, y: any): any[] | is.Pojo | Diff {
     return Diff.update(x, y);
   }
   if (is.pojo(x)) {
-    const uniqKyes = Array.from(new Set(Object.keys(x).concat(Object.keys(y))));
+    const uniqKyes = uniqueKeys(x, y);
     return uniqKyes.reduce((out, k) => {
       out[k] = diff(x[k], y[k]);
       return out;
