@@ -926,9 +926,6 @@ var Diff = /** @class */ (function () {
         this.prev = prev;
         this.next = next;
     }
-    Diff.ident = function (val) {
-        return new Diff("ident", val, val);
-    };
     Diff.update = function (prev, next) {
         return new Diff("update", prev, next);
     };
@@ -941,9 +938,19 @@ var Diff = /** @class */ (function () {
     return Diff;
 }());
 exports.Diff = Diff;
+var includes = function (item, arr) { return arr.indexOf(item) > -1; };
+var uniqueKeys = function () {
+    var objs = [];
+    for (var _i = 0; _i < arguments.length; _i++) {
+        objs[_i] = arguments[_i];
+    }
+    return objs
+        .reduce(function (keys, o) { return keys.concat(Object.keys(o)); }, [])
+        .reduce(function (keys, k) { return includes(k, keys) ? keys : keys.concat(k); }, []);
+};
 function diff(x, y) {
     if (x === y) {
-        return Diff.ident(x);
+        return y;
     }
     if (is.undef(x)) {
         return Diff.add(y);
@@ -965,7 +972,7 @@ function diff(x, y) {
         return Diff.update(x, y);
     }
     if (is.pojo(x)) {
-        var uniqKyes = Array.from(new Set(Object.keys(x).concat(Object.keys(y))));
+        var uniqKyes = uniqueKeys(x, y);
         return uniqKyes.reduce(function (out, k) {
             out[k] = diff(x[k], y[k]);
             return out;
@@ -2994,11 +3001,11 @@ var __spread = (this && this.__spread) || function () {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var css = __webpack_require__(34);
-var icon = __webpack_require__(43);
+var icon = __webpack_require__(37);
 var duckweed = __webpack_require__(0);
 var devtool_1 = __webpack_require__(8);
-var diff = __webpack_require__(37);
-var scrubber = __webpack_require__(40);
+var diff = __webpack_require__(38);
+var scrubber = __webpack_require__(41);
 var init = function () { return ({
     currentIndex: 0,
     diff: diff.init(),
@@ -3242,6 +3249,12 @@ module.exports = function (css) {
 
 /***/ }),
 /* 37 */
+/***/ (function(module, exports) {
+
+module.exports = "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjxzdmcKICAgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIgogICB4bWxuczpjYz0iaHR0cDovL2NyZWF0aXZlY29tbW9ucy5vcmcvbnMjIgogICB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiCiAgIHhtbG5zOnN2Zz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiAgIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIKICAgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiCiAgIGlkPSJzdmc1MTM5IgogICB2ZXJzaW9uPSIxLjEiCiAgIHZpZXdCb3g9IjAgMCAzLjQ4MTQ1NiAzLjAzNzQ5MjgiCiAgIGhlaWdodD0iMy4wMzc0OTI4bW0iCiAgIHdpZHRoPSIzLjQ4MTQ1Nm1tIj4KICA8ZGVmcwogICAgIGlkPSJkZWZzNTEzMyI+CiAgICA8cmFkaWFsR3JhZGllbnQKICAgICAgIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIgogICAgICAgZ3JhZGllbnRUcmFuc2Zvcm09Im1hdHJpeCgwLjAyNTY1ODQzLDAuMDM1MDQ3ODEsLTAuMDQ3NDIxOTksMC4wMzQ3MTc0NSw2LjU3MjMwMDksMTQ4LjU5OTY1KSIKICAgICAgIHI9IjUxLjE2NzkxMiIKICAgICAgIGZ5PSI4NC44NDA0ODUiCiAgICAgICBmeD0iLTE1OC4zNTY5MiIKICAgICAgIGN5PSI4NC44NDA0ODUiCiAgICAgICBjeD0iLTE1OC4zNTY5MiIKICAgICAgIGlkPSJyYWRpYWxHcmFkaWVudDQ0OTMiCiAgICAgICB4bGluazpocmVmPSIjbGluZWFyR3JhZGllbnQ0NTIyIiAvPgogICAgPGxpbmVhckdyYWRpZW50CiAgICAgICBpZD0ibGluZWFyR3JhZGllbnQ0NTIyIj4KICAgICAgPHN0b3AKICAgICAgICAgc3R5bGU9InN0b3AtY29sb3I6IzhjYzMzYTtzdG9wLW9wYWNpdHk6MSIKICAgICAgICAgb2Zmc2V0PSIwIgogICAgICAgICBpZD0ic3RvcDQ1MTgiIC8+CiAgICAgIDxzdG9wCiAgICAgICAgIHN0eWxlPSJzdG9wLWNvbG9yOiMzZjdjMDQ7c3RvcC1vcGFjaXR5OjEiCiAgICAgICAgIG9mZnNldD0iMSIKICAgICAgICAgaWQ9InN0b3A0NTIwIiAvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPG1ldGFkYXRhCiAgICAgaWQ9Im1ldGFkYXRhNTEzNiI+CiAgICA8cmRmOlJERj4KICAgICAgPGNjOldvcmsKICAgICAgICAgcmRmOmFib3V0PSIiPgogICAgICAgIDxkYzpmb3JtYXQ+aW1hZ2Uvc3ZnK3htbDwvZGM6Zm9ybWF0PgogICAgICAgIDxkYzp0eXBlCiAgICAgICAgICAgcmRmOnJlc291cmNlPSJodHRwOi8vcHVybC5vcmcvZGMvZGNtaXR5cGUvU3RpbGxJbWFnZSIgLz4KICAgICAgICA8ZGM6dGl0bGU+PC9kYzp0aXRsZT4KICAgICAgPC9jYzpXb3JrPgogICAgPC9yZGY6UkRGPgogIDwvbWV0YWRhdGE+CiAgPGcKICAgICB0cmFuc2Zvcm09InRyYW5zbGF0ZSg0LjAwODU4NTEsLTE0NS4wNDY3MykiCiAgICAgaWQ9ImxheWVyMSI+CiAgICA8cGF0aAogICAgICAgaWQ9InBhdGg0NDg1IgogICAgICAgZD0ibSAtMy42NjE3ODAxLDE0Ny4zODIxNCBjIDAuNzU5NTAyLDEuMTc4NTQgMi42NTM3MjQsMC43OTEwOCAzLjAxMTgxMzk4LC0wLjU0OTk5IDAuNDMwMzA5MSwtMS42MTE1MiAtMC4zMjAzMzIxLC0xLjg5MjM2IC0xLjQ2NjYyMTk4LC0xLjc1NDcxIC0wLjg5NzQ3NiwwLjEwNzc4IC0yLjYzMjA2NCwwLjY4MDk0IC0xLjU0NTE5MiwyLjMwNDcgeiIKICAgICAgIHN0eWxlPSJvcGFjaXR5OjE7ZmlsbDp1cmwoI3JhZGlhbEdyYWRpZW50NDQ5Myk7ZmlsbC1vcGFjaXR5OjE7c3Ryb2tlOm5vbmU7c3Ryb2tlLXdpZHRoOjAuMjY0NTgzMzI7c3Ryb2tlLW1pdGVybGltaXQ6NDtzdHJva2UtZGFzaGFycmF5Om5vbmU7c3Ryb2tlLWRhc2hvZmZzZXQ6MDtzdHJva2Utb3BhY2l0eToxIiAvPgogIDwvZz4KPC9zdmc+Cg=="
+
+/***/ }),
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3275,7 +3288,7 @@ var __read = (this && this.__read) || function (o, n) {
     return ar;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var css = __webpack_require__(38);
+var css = __webpack_require__(39);
 var duckweed = __webpack_require__(0);
 var diff_1 = __webpack_require__(9);
 var is = __webpack_require__(10);
@@ -3288,7 +3301,7 @@ exports.init = init;
 var Action;
 (function (Action) {
     Action["PushScope"] = "PushScope";
-    Action["SetScope"] = "PopScope";
+    Action["SetScope"] = "SetScope";
 })(Action || (Action = {}));
 exports.Action = Action;
 var actions = (_a = {},
@@ -3296,24 +3309,34 @@ var actions = (_a = {},
         patch(function (model) { return (__assign({}, model, { scope: model.scope.concat(key) })); });
     },
     _a[Action.SetScope] = function (patch, index) {
-        patch(function (model) { return (__assign({}, model, { scope: index ? model.scope.slice(0, index + 1) : [] })); });
+        patch(function (model) { return (__assign({}, model, { scope: index === null ? [] : model.scope.slice(0, index + 1) })); });
     },
     _a);
 exports.actions = actions;
+var diffValue = function (d) {
+    switch (d.type) {
+        case "del":
+            return d.prev;
+        default:
+            return d.next;
+    }
+};
 var scoped = function (scope, obj) {
     return typeof obj === "undefined" || scope.length === 0
         ? obj
-        : scoped(scope.slice(1), obj[scope[0]]);
+        : scoped(scope.slice(1), isDiff(obj) ? diffValue(obj)[scope[0]] : obj[scope[0]]);
 };
 var isDiff = function (diff) {
     return diff instanceof diff_1.Diff;
 };
-var diffView = function (diff) { return (duckweed.html("span", { class: css[diff.type] }, diff.next)); };
-var renderValue = function (act, k, v, extraClass) {
+var diffView = function (act, diff) { return (duckweed.html("span", { class: css[diff.type] }, diff.type === "del"
+    ? JSON.stringify(diff.prev)
+    : valueView(act, diff.next))); };
+var renderValue = function (act, v, k, extraClass) {
     if (extraClass === void 0) { extraClass = []; }
     if (is.container(v)) {
         return [
-            duckweed.html("span", { class: [css.expandObject].concat(extraClass), "on-click": act(Action.PushScope, k) }, is.pojo(v) ? "{}" : "[]"),
+            duckweed.html("span", { class: [css.expandObject].concat(extraClass), "on-click": k ? act(Action.PushScope, k) : undefined }, is.pojo(v) ? "{}" : "[]"),
             duckweed.html("span", { class: css.preview }, JSON.stringify(v)),
         ];
     }
@@ -3327,17 +3350,14 @@ var objDiff = function (act, obj) { return (duckweed.html("div", { class: css.ob
             ":"),
         duckweed.html("span", { class: css.val }, (function () {
             if (isDiff(v)) {
-                if (v.type === "ident") {
-                    return renderValue(act, k, v.next);
-                }
-                return renderValue(act, k, v.next, [css[v.type]]);
+                return renderValue(act, v.next, k, [css[v.type]]);
             }
-            return renderValue(act, k, v);
+            return renderValue(act, v, k);
         })()));
 }))); };
 var valueView = function (act, v) {
     if (isDiff(v)) {
-        return diffView(v);
+        return diffView(act, v);
     }
     if (is.container(v)) {
         return objDiff(act, v);
@@ -3348,8 +3368,13 @@ var view = function (_a) {
     var model = _a.model, act = _a.act;
     return (duckweed.html("div", { class: css.diffPane },
         duckweed.html("div", { class: css.breadcrumbs },
-            duckweed.html("span", { class: css.crumb, "on-click": act(Action.SetScope, null) }, "(root)"),
-            model.scope.map(function (key, index, keys) {
+            model.scope.length
+                ? [
+                    duckweed.html("button", { class: [css.crumbButton, css.toRoot], "on-click": act(Action.SetScope, null) }, "go to root"),
+                    duckweed.html("button", { class: [css.crumbButton, css.upOne], "on-click": act(Action.SetScope, model.scope.length - 2) }, "up one level"),
+                ]
+                : "Model",
+            model.scope.map(function (key, index) {
                 return duckweed.html("span", { class: css.crumb, "on-click": act(Action.SetScope, index) }, key);
             })),
         duckweed.html("div", { class: css.inspector }, valueView(act, scoped(model.scope, model.diff)))));
@@ -3359,13 +3384,13 @@ var _a;
 
 
 /***/ }),
-/* 38 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(39);
+var content = __webpack_require__(40);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -3390,7 +3415,7 @@ if(false) {
 }
 
 /***/ }),
-/* 39 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(2)(true);
@@ -3398,15 +3423,16 @@ exports = module.exports = __webpack_require__(2)(true);
 
 
 // module
-exports.push([module.i, "/**\n * (c) 2017 Hajime Yamasaki Vukelic\n * All rights reserved.\n */\n.diffPane-3c7Xp {\n  max-height: calc(30vh - 32px);\n  overflow-y: auto;\n  padding: 1rem;\n}\n.breadcrumbs-1qPwy {\n  border-bottom: 1px solid #ddd;\n  margin-bottom: 0.2rem;\n  padding-bottom: 0.2rem;\n}\n.crumb-3MmUj {\n  cursor: pointer;\n  display: inline-block;\n  font-family: monospace;\n  padding: 0.1rem 0.4rem;\n}\n.crumbhover-2hSLh {\n  text-decoration: underline;\n}\n.crumbpre-2Kps3 {\n  content: \".\";\n}\n.keyVal-3Mi7o {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  font-family: monospace;\n  -webkit-box-pack: justify;\n      -ms-flex-pack: justify;\n          justify-content: space-between;\n}\n.key-1pLcm {\n  display: inline-block;\n  width: 5rem;\n}\n.val-GtOkb {\n  display: -webkit-inline-box;\n  display: -ms-inline-flexbox;\n  display: inline-flex;\n  -webkit-box-pack: justify;\n      -ms-flex-pack: justify;\n          justify-content: space-between;\n  overflow: hidden;\n  width: 100%;\n}\n.expandObject-299w6 {\n  background: rgba(0,0,0,0.6);\n  border-radius: 3px;\n  color: #890;\n  cursor: pointer;\n  display: inline-block;\n  margin-right: 0.3rem;\n  padding: 0.1rem 0.2rem;\n}\n.expandObjecthover-3nQHt {\n  color: #fff;\n}\n.preview-2Vk7a {\n  display: inline-block;\n  opacity: 0.5;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  width: 100%;\n}\n.ident-10V3I {\n  color: inherit;\n}\n.update-1H5I0 {\n  color: #5a26a8;\n}\n.add-2uWUU {\n  color: #83a826;\n}\n.del-3gc2h {\n  color: #a82626;\n  text-decoration: line-through;\n}\n", "", {"version":3,"sources":["C:/Code/duckweed-devtool/src/panel/C:/Code/duckweed-devtool/src/panel/diff.styl","C:/Code/duckweed-devtool/src/panel/C:/Code/duckweed-devtool/diff.styl"],"names":[],"mappings":"AAAA;;;GCGG;ADEH;EACE,8BAAA;EACA,iBAAA;EACA,cAAA;CCAD;ADED;EACE,8BAAA;EACA,sBAAA;EACA,uBAAA;CCAD;ADED;EACE,gBAAA;EACA,sBAAA;EACA,uBAAA;EACA,uBAAA;CCAD;ADEC;EACE,2BAAA;CCAH;ADEC;EACE,aAAA;CCAH;ADED;EACE,qBAAA;EAAA,qBAAA;EAAA,cAAA;EACA,uBAAA;EACA,0BAAA;MAAA,uBAAA;UAAA,+BAAA;CCAD;ADED;EACE,sBAAA;EACA,YAAA;CCAD;ADED;EACE,4BAAA;EAAA,4BAAA;EAAA,qBAAA;EACA,0BAAA;MAAA,uBAAA;UAAA,+BAAA;EACA,iBAAA;EACA,YAAA;CCAD;ADED;EACE,4BAAA;EACA,mBAAA;EACA,YAAA;EACA,gBAAA;EACA,sBAAA;EACA,qBAAA;EACA,uBAAA;CCAD;ADEC;EACE,YAAA;CCAH;ADED;EACE,sBAAA;EACA,aAAA;EACA,iBAAA;EACA,wBAAA;EACA,oBAAA;EACA,YAAA;CCAD;ADED;EACE,eAAA;CCAD;ADED;EACE,eAAA;CCAD;ADED;EACE,eAAA;CCAD;ADED;EACE,eAAA;EACA,8BAAA;CCAD","file":"diff.styl","sourcesContent":["/**\n * (c) 2017 Hajime Yamasaki Vukelic\n * All rights reserved.\n */\n\n.diffPane\n  max-height calc(30vh - 32px)\n  overflow-y auto\n  padding 1rem;\n\n.breadcrumbs\n  border-bottom 1px solid #ddd\n  margin-bottom 0.2rem\n  padding-bottom 0.2rem\n\n.crumb\n  cursor pointer\n  display inline-block\n  font-family monospace\n  padding 0.1rem 0.4rem\n\n  &hover\n    text-decoration underline\n\n  &pre\n    content \".\"\n\n.keyVal\n  display flex\n  font-family monospace\n  justify-content space-between\n\n.key\n  display inline-block\n  width 5rem\n\n.val\n  display inline-flex\n  justify-content space-between\n  overflow hidden\n  width 100%\n\n.expandObject\n  background transparentify(black, 0.6)\n  border-radius 3px\n  color #889900\n  cursor pointer\n  display inline-block\n  margin-right 0.3rem\n  padding 0.1rem 0.2rem\n\n  &hover\n    color white\n\n.preview\n  display inline-block\n  opacity 0.5\n  overflow hidden\n  text-overflow ellipsis\n  white-space nowrap\n  width 100%\n\n.ident\n  color inherit\n\n.update\n  color #5a26a8\n\n.add\n  color #83a826\n\n.del\n  color #a82626\n  text-decoration line-through\n","/**\n * (c) 2017 Hajime Yamasaki Vukelic\n * All rights reserved.\n */\n.diffPane {\n  max-height: calc(30vh - 32px);\n  overflow-y: auto;\n  padding: 1rem;\n}\n.breadcrumbs {\n  border-bottom: 1px solid #ddd;\n  margin-bottom: 0.2rem;\n  padding-bottom: 0.2rem;\n}\n.crumb {\n  cursor: pointer;\n  display: inline-block;\n  font-family: monospace;\n  padding: 0.1rem 0.4rem;\n}\n.crumbhover {\n  text-decoration: underline;\n}\n.crumbpre {\n  content: \".\";\n}\n.keyVal {\n  display: flex;\n  font-family: monospace;\n  justify-content: space-between;\n}\n.key {\n  display: inline-block;\n  width: 5rem;\n}\n.val {\n  display: inline-flex;\n  justify-content: space-between;\n  overflow: hidden;\n  width: 100%;\n}\n.expandObject {\n  background: rgba(0,0,0,0.6);\n  border-radius: 3px;\n  color: #890;\n  cursor: pointer;\n  display: inline-block;\n  margin-right: 0.3rem;\n  padding: 0.1rem 0.2rem;\n}\n.expandObjecthover {\n  color: #fff;\n}\n.preview {\n  display: inline-block;\n  opacity: 0.5;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  width: 100%;\n}\n.ident {\n  color: inherit;\n}\n.update {\n  color: #5a26a8;\n}\n.add {\n  color: #83a826;\n}\n.del {\n  color: #a82626;\n  text-decoration: line-through;\n}\n"],"sourceRoot":""}]);
+exports.push([module.i, "/**\n * (c) 2017 Hajime Yamasaki Vukelic\n * All rights reserved.\n */\n.diffPane-3c7Xp {\n  max-height: calc(30vh - 32px);\n  overflow-y: auto;\n  padding: 1rem 0.5rem;\n}\n.breadcrumbs-1qPwy {\n  border-bottom: 1px solid #ddd;\n  margin-bottom: 0.2rem;\n  padding-bottom: 0.2rem;\n}\n.crumbButton-3_Dik {\n  background-color: transparent;\n  background-size: cover;\n  cursor: pointer;\n  height: 18px;\n  margin-right: 0.5rem;\n  overflow: hidden;\n  text-indent: -100vw;\n  width: 18px;\n}\n.toRoot-1y7LC {\n  background-image: url(" + __webpack_require__(48) + ");\n}\n.upOne-3IbEx {\n  background-image: url(" + __webpack_require__(47) + ");\n}\n.crumb-3MmUj {\n  cursor: pointer;\n  display: inline-block;\n  font-family: monospace;\n  padding: 0.1rem 0.4rem;\n}\n.crumb-3MmUj:hover {\n  text-decoration: underline;\n}\n.crumb-3MmUj::before {\n  content: \".\";\n}\n.keyVal-3Mi7o {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  font-family: monospace;\n  -webkit-box-pack: justify;\n      -ms-flex-pack: justify;\n          justify-content: space-between;\n  margin: 0.25rem 0;\n}\n.key-1pLcm {\n  display: inline-block;\n  width: 10rem;\n}\n.val-GtOkb {\n  display: -webkit-inline-box;\n  display: -ms-inline-flexbox;\n  display: inline-flex;\n  -webkit-box-pack: justify;\n      -ms-flex-pack: justify;\n          justify-content: space-between;\n  overflow: hidden;\n  width: 100%;\n}\n.expandObject-299w6 {\n  background: rgba(0,0,0,0.6);\n  border-radius: 3px;\n  color: #890;\n  cursor: pointer;\n  display: inline-block;\n  margin-right: 0.3rem;\n  padding: 0.1rem 0.2rem;\n}\n.expandObjecthover-3nQHt {\n  color: #fff;\n}\n.preview-2Vk7a {\n  display: inline-block;\n  opacity: 0.5;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  width: 100%;\n}\n.ident-10V3I {\n  color: inherit;\n}\n.update-1H5I0 {\n  color: #5a26a8;\n}\n.add-2uWUU {\n  color: #83a826;\n}\n.del-3gc2h {\n  color: #a82626;\n  text-decoration: line-through;\n}\n", "", {"version":3,"sources":["C:/Code/duckweed-devtool/src/panel/C:/Code/duckweed-devtool/src/panel/diff.styl","C:/Code/duckweed-devtool/src/panel/C:/Code/duckweed-devtool/diff.styl"],"names":[],"mappings":"AAAA;;;GCGG;ADEH;EACE,8BAAA;EACA,iBAAA;EACA,qBAAA;CCAD;ADED;EACE,8BAAA;EACA,sBAAA;EACA,uBAAA;CCAD;ADED;EACE,8BAAA;EACA,uBAAA;EACA,gBAAA;EACA,aAAA;EACA,qBAAA;EACA,iBAAA;EACA,oBAAA;EACA,YAAA;CCAD;ADED;EACE,gDAAA;CCAD;ADED;EACE,gDAAA;CCAD;ADED;EACE,gBAAA;EACA,sBAAA;EACA,uBAAA;EACA,uBAAA;CCAD;ADEC;EACE,2BAAA;CCAH;ADEC;EACE,aAAA;CCAH;ADED;EACE,qBAAA;EAAA,qBAAA;EAAA,cAAA;EACA,uBAAA;EACA,0BAAA;MAAA,uBAAA;UAAA,+BAAA;EACA,kBAAA;CCAD;ADED;EACE,sBAAA;EACA,aAAA;CCAD;ADED;EACE,4BAAA;EAAA,4BAAA;EAAA,qBAAA;EACA,0BAAA;MAAA,uBAAA;UAAA,+BAAA;EACA,iBAAA;EACA,YAAA;CCAD;ADED;EACE,4BAAA;EACA,mBAAA;EACA,YAAA;EACA,gBAAA;EACA,sBAAA;EACA,qBAAA;EACA,uBAAA;CCAD;ADEC;EACE,YAAA;CCAH;ADED;EACE,sBAAA;EACA,aAAA;EACA,iBAAA;EACA,wBAAA;EACA,oBAAA;EACA,YAAA;CCAD;ADED;EACE,eAAA;CCAD;ADED;EACE,eAAA;CCAD;ADED;EACE,eAAA;CCAD;ADED;EACE,eAAA;EACA,8BAAA;CCAD","file":"diff.styl","sourcesContent":["/**\n * (c) 2017 Hajime Yamasaki Vukelic\n * All rights reserved.\n */\n\n.diffPane\n  max-height calc(30vh - 32px)\n  overflow-y auto\n  padding 1rem 0.5rem;\n\n.breadcrumbs\n  border-bottom 1px solid #ddd\n  margin-bottom 0.2rem\n  padding-bottom 0.2rem\n\n.crumbButton\n  background-color: transparent\n  background-size cover\n  cursor pointer\n  height 18px\n  margin-right 0.5rem\n  overflow hidden\n  text-indent -100vw\n  width 18px\n\n.toRoot\n  background-image url(\"icons/up-fast.svg\")\n\n.upOne\n  background-image url(\"icons/up.svg\")\n\n.crumb\n  cursor pointer\n  display inline-block\n  font-family monospace\n  padding 0.1rem 0.4rem\n\n  &:hover\n    text-decoration underline\n\n  &::before\n    content \".\"\n\n.keyVal\n  display flex\n  font-family monospace\n  justify-content space-between\n  margin: 0.25rem 0\n\n.key\n  display inline-block\n  width 10rem\n\n.val\n  display inline-flex\n  justify-content space-between\n  overflow hidden\n  width 100%\n\n.expandObject\n  background transparentify(black, 0.6)\n  border-radius 3px\n  color #889900\n  cursor pointer\n  display inline-block\n  margin-right 0.3rem\n  padding 0.1rem 0.2rem\n\n  &hover\n    color white\n\n.preview\n  display inline-block\n  opacity 0.5\n  overflow hidden\n  text-overflow ellipsis\n  white-space nowrap\n  width 100%\n\n.ident\n  color inherit\n\n.update\n  color #5a26a8\n\n.add\n  color #83a826\n\n.del\n  color #a82626\n  text-decoration line-through\n","/**\n * (c) 2017 Hajime Yamasaki Vukelic\n * All rights reserved.\n */\n.diffPane {\n  max-height: calc(30vh - 32px);\n  overflow-y: auto;\n  padding: 1rem 0.5rem;\n}\n.breadcrumbs {\n  border-bottom: 1px solid #ddd;\n  margin-bottom: 0.2rem;\n  padding-bottom: 0.2rem;\n}\n.crumbButton {\n  background-color: transparent;\n  background-size: cover;\n  cursor: pointer;\n  height: 18px;\n  margin-right: 0.5rem;\n  overflow: hidden;\n  text-indent: -100vw;\n  width: 18px;\n}\n.toRoot {\n  background-image: url(\"icons/up-fast.svg\");\n}\n.upOne {\n  background-image: url(\"icons/up.svg\");\n}\n.crumb {\n  cursor: pointer;\n  display: inline-block;\n  font-family: monospace;\n  padding: 0.1rem 0.4rem;\n}\n.crumb:hover {\n  text-decoration: underline;\n}\n.crumb::before {\n  content: \".\";\n}\n.keyVal {\n  display: flex;\n  font-family: monospace;\n  justify-content: space-between;\n  margin: 0.25rem 0;\n}\n.key {\n  display: inline-block;\n  width: 10rem;\n}\n.val {\n  display: inline-flex;\n  justify-content: space-between;\n  overflow: hidden;\n  width: 100%;\n}\n.expandObject {\n  background: rgba(0,0,0,0.6);\n  border-radius: 3px;\n  color: #890;\n  cursor: pointer;\n  display: inline-block;\n  margin-right: 0.3rem;\n  padding: 0.1rem 0.2rem;\n}\n.expandObjecthover {\n  color: #fff;\n}\n.preview {\n  display: inline-block;\n  opacity: 0.5;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  width: 100%;\n}\n.ident {\n  color: inherit;\n}\n.update {\n  color: #5a26a8;\n}\n.add {\n  color: #83a826;\n}\n.del {\n  color: #a82626;\n  text-decoration: line-through;\n}\n"],"sourceRoot":""}]);
 
 // exports
 exports.locals = {
 	"diffPane": "diffPane-3c7Xp",
 	"breadcrumbs": "breadcrumbs-1qPwy",
+	"crumbButton": "crumbButton-3_Dik",
+	"toRoot": "toRoot-1y7LC",
+	"upOne": "upOne-3IbEx",
 	"crumb": "crumb-3MmUj",
-	"crumbhover": "crumbhover-2hSLh",
-	"crumbpre": "crumbpre-2Kps3",
 	"keyVal": "keyVal-3Mi7o",
 	"key": "key-1pLcm",
 	"val": "val-GtOkb",
@@ -3420,7 +3446,7 @@ exports.locals = {
 };
 
 /***/ }),
-/* 40 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3438,7 +3464,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var css = __webpack_require__(41);
+var css = __webpack_require__(42);
 var duckweed = __webpack_require__(0);
 var from = duckweed.events.from;
 var init = function () { return ({
@@ -3518,13 +3544,13 @@ var _a;
 
 
 /***/ }),
-/* 41 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(42);
+var content = __webpack_require__(43);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -3549,7 +3575,7 @@ if(false) {
 }
 
 /***/ }),
-/* 42 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 exports = module.exports = __webpack_require__(2)(true);
@@ -3576,12 +3602,6 @@ exports.locals = {
 };
 
 /***/ }),
-/* 43 */
-/***/ (function(module, exports) {
-
-module.exports = "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjxzdmcKICAgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIgogICB4bWxuczpjYz0iaHR0cDovL2NyZWF0aXZlY29tbW9ucy5vcmcvbnMjIgogICB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiCiAgIHhtbG5zOnN2Zz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiAgIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIKICAgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiCiAgIGlkPSJzdmc1MTM5IgogICB2ZXJzaW9uPSIxLjEiCiAgIHZpZXdCb3g9IjAgMCAzLjQ4MTQ1NiAzLjAzNzQ5MjgiCiAgIGhlaWdodD0iMy4wMzc0OTI4bW0iCiAgIHdpZHRoPSIzLjQ4MTQ1Nm1tIj4KICA8ZGVmcwogICAgIGlkPSJkZWZzNTEzMyI+CiAgICA8cmFkaWFsR3JhZGllbnQKICAgICAgIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIgogICAgICAgZ3JhZGllbnRUcmFuc2Zvcm09Im1hdHJpeCgwLjAyNTY1ODQzLDAuMDM1MDQ3ODEsLTAuMDQ3NDIxOTksMC4wMzQ3MTc0NSw2LjU3MjMwMDksMTQ4LjU5OTY1KSIKICAgICAgIHI9IjUxLjE2NzkxMiIKICAgICAgIGZ5PSI4NC44NDA0ODUiCiAgICAgICBmeD0iLTE1OC4zNTY5MiIKICAgICAgIGN5PSI4NC44NDA0ODUiCiAgICAgICBjeD0iLTE1OC4zNTY5MiIKICAgICAgIGlkPSJyYWRpYWxHcmFkaWVudDQ0OTMiCiAgICAgICB4bGluazpocmVmPSIjbGluZWFyR3JhZGllbnQ0NTIyIiAvPgogICAgPGxpbmVhckdyYWRpZW50CiAgICAgICBpZD0ibGluZWFyR3JhZGllbnQ0NTIyIj4KICAgICAgPHN0b3AKICAgICAgICAgc3R5bGU9InN0b3AtY29sb3I6IzhjYzMzYTtzdG9wLW9wYWNpdHk6MSIKICAgICAgICAgb2Zmc2V0PSIwIgogICAgICAgICBpZD0ic3RvcDQ1MTgiIC8+CiAgICAgIDxzdG9wCiAgICAgICAgIHN0eWxlPSJzdG9wLWNvbG9yOiMzZjdjMDQ7c3RvcC1vcGFjaXR5OjEiCiAgICAgICAgIG9mZnNldD0iMSIKICAgICAgICAgaWQ9InN0b3A0NTIwIiAvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPG1ldGFkYXRhCiAgICAgaWQ9Im1ldGFkYXRhNTEzNiI+CiAgICA8cmRmOlJERj4KICAgICAgPGNjOldvcmsKICAgICAgICAgcmRmOmFib3V0PSIiPgogICAgICAgIDxkYzpmb3JtYXQ+aW1hZ2Uvc3ZnK3htbDwvZGM6Zm9ybWF0PgogICAgICAgIDxkYzp0eXBlCiAgICAgICAgICAgcmRmOnJlc291cmNlPSJodHRwOi8vcHVybC5vcmcvZGMvZGNtaXR5cGUvU3RpbGxJbWFnZSIgLz4KICAgICAgICA8ZGM6dGl0bGU+PC9kYzp0aXRsZT4KICAgICAgPC9jYzpXb3JrPgogICAgPC9yZGY6UkRGPgogIDwvbWV0YWRhdGE+CiAgPGcKICAgICB0cmFuc2Zvcm09InRyYW5zbGF0ZSg0LjAwODU4NTEsLTE0NS4wNDY3MykiCiAgICAgaWQ9ImxheWVyMSI+CiAgICA8cGF0aAogICAgICAgaWQ9InBhdGg0NDg1IgogICAgICAgZD0ibSAtMy42NjE3ODAxLDE0Ny4zODIxNCBjIDAuNzU5NTAyLDEuMTc4NTQgMi42NTM3MjQsMC43OTEwOCAzLjAxMTgxMzk4LC0wLjU0OTk5IDAuNDMwMzA5MSwtMS42MTE1MiAtMC4zMjAzMzIxLC0xLjg5MjM2IC0xLjQ2NjYyMTk4LC0xLjc1NDcxIC0wLjg5NzQ3NiwwLjEwNzc4IC0yLjYzMjA2NCwwLjY4MDk0IC0xLjU0NTE5MiwyLjMwNDcgeiIKICAgICAgIHN0eWxlPSJvcGFjaXR5OjE7ZmlsbDp1cmwoI3JhZGlhbEdyYWRpZW50NDQ5Myk7ZmlsbC1vcGFjaXR5OjE7c3Ryb2tlOm5vbmU7c3Ryb2tlLXdpZHRoOjAuMjY0NTgzMzI7c3Ryb2tlLW1pdGVybGltaXQ6NDtzdHJva2UtZGFzaGFycmF5Om5vbmU7c3Ryb2tlLWRhc2hvZmZzZXQ6MDtzdHJva2Utb3BhY2l0eToxIiAvPgogIDwvZz4KPC9zdmc+Cg=="
-
-/***/ }),
 /* 44 */
 /***/ (function(module, exports) {
 
@@ -3598,6 +3618,18 @@ module.exports = "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGlu
 /***/ (function(module, exports) {
 
 module.exports = "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjxzdmcKICAgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIgogICB4bWxuczpjYz0iaHR0cDovL2NyZWF0aXZlY29tbW9ucy5vcmcvbnMjIgogICB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiCiAgIHhtbG5zOnN2Zz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiAgIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIKICAgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiCiAgIGlkPSJzdmc2ODk5IgogICB2ZXJzaW9uPSIxLjEiCiAgIHZpZXdCb3g9IjAgMCA0LjIzMzMzMDIgNC4yMzMzMzY5IgogICBoZWlnaHQ9IjQuMjMzMzM2OW1tIgogICB3aWR0aD0iNC4yMzMzMzAybW0iPgogIDxkZWZzCiAgICAgaWQ9ImRlZnM2ODkzIj4KICAgIDxsaW5lYXJHcmFkaWVudAogICAgICAgeTI9IjI4Ni4yNTg4MiIKICAgICAgIHgyPSI3LjUwOTUyMzQiCiAgICAgICB5MT0iMjg0LjA5MDQyIgogICAgICAgeDE9IjcuNTA5NTIzNCIKICAgICAgIGdyYWRpZW50VHJhbnNmb3JtPSJtYXRyaXgoLTEuMzk2NzYxNywwLDAsMS4zOTY3NjE3LDIyOC42MTU1MywtNDIwLjcwMjg5KSIKICAgICAgIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIgogICAgICAgaWQ9ImxpbmVhckdyYWRpZW50Njg1MCIKICAgICAgIHhsaW5rOmhyZWY9IiNsaW5lYXJHcmFkaWVudDQ1MjIiIC8+CiAgICA8bGluZWFyR3JhZGllbnQKICAgICAgIGlkPSJsaW5lYXJHcmFkaWVudDQ1MjIiPgogICAgICA8c3RvcAogICAgICAgICBzdHlsZT0ic3RvcC1jb2xvcjojOGNjMzNhO3N0b3Atb3BhY2l0eToxIgogICAgICAgICBvZmZzZXQ9IjAiCiAgICAgICAgIGlkPSJzdG9wNDUxOCIgLz4KICAgICAgPHN0b3AKICAgICAgICAgc3R5bGU9InN0b3AtY29sb3I6IzNmN2MwNDtzdG9wLW9wYWNpdHk6MSIKICAgICAgICAgb2Zmc2V0PSIxIgogICAgICAgICBpZD0ic3RvcDQ1MjAiIC8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8bWV0YWRhdGEKICAgICBpZD0ibWV0YWRhdGE2ODk2Ij4KICAgIDxyZGY6UkRGPgogICAgICA8Y2M6V29yawogICAgICAgICByZGY6YWJvdXQ9IiI+CiAgICAgICAgPGRjOmZvcm1hdD5pbWFnZS9zdmcreG1sPC9kYzpmb3JtYXQ+CiAgICAgICAgPGRjOnR5cGUKICAgICAgICAgICByZGY6cmVzb3VyY2U9Imh0dHA6Ly9wdXJsLm9yZy9kYy9kY21pdHlwZS9TdGlsbEltYWdlIiAvPgogICAgICAgIDxkYzp0aXRsZT48L2RjOnRpdGxlPgogICAgICA8L2NjOldvcms+CiAgICA8L3JkZjpSREY+CiAgPC9tZXRhZGF0YT4KICA8ZwogICAgIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0yMTUuNDQyOTMsMjMuOTczODc5KSIKICAgICBpZD0ibGF5ZXIxIj4KICAgIDxwYXRoCiAgICAgICBpZD0icGF0aDY4NDgiCiAgICAgICBkPSJtIDIxNy41NTk5NiwtMjMuOTczODc5IGMgLTEuMTY5MzIsLTIuNzllLTQgLTIuMTE3MzEsMC45NDc3MTcgLTIuMTE3MDMsMi4xMTcwMyAxLjFlLTQsMS4xNjkwMzMgMC45NDc5OSwyLjExNjU4NyAyLjExNzAzLDIuMTE2MzA3IDEuMTY4NzUsLTEuMjVlLTQgMi4xMTYxOSwtMC45NDc1NTMgMi4xMTYzLC0yLjExNjMwNyAyLjhlLTQsLTEuMTY5MDM0IC0wLjk0NzI3LC0yLjExNjkwNCAtMi4xMTYzLC0yLjExNzAzIHogbSAtMC42NDk2MiwxLjAwMjU3NiBoIDEuMjk4NTEgYyAwLjI1NDE4LDAgMC40NjYyOCwwLjIwOTIyNSAwLjQ2NjI4LDAuNDYzMzk0IHYgMS4zMDEzOTkgYyAwLDAuMjU0MTgzIC0wLjIxMjEsMC40NjMzOTIgLTAuNDY2MjgsMC40NjMzOTIgaCAtMS4yOTg1MSBjIC0wLjI1NDE3LDAgLTAuNDY3LC0wLjIwOTIwOSAtMC40NjcsLTAuNDYzMzkyIHYgLTEuMzAxMzk5IGMgMCwtMC4yNTQxNjkgMC4yMTI4MywtMC40NjMzOTQgMC40NjcsLTAuNDYzMzk0IHogbSAwLDAuMzcxMDA0IGMgLTAuMDU1NSwwIC0wLjA5NiwwLjAzNjkzIC0wLjA5NiwwLjA5MjM5IHYgMS4zMDE0IGMgMCwwLjA1NTU5IDAuMDQwNSwwLjA5NTI3IDAuMDk2LDAuMDk1MjcgaCAxLjI5ODUxIGMgMC4wNTU0LDAgMC4wOTUzLC0wLjAzOTgyIDAuMDk1MywtMC4wOTUyNyB2IC0xLjMwMTQgYyAwLC0wLjA1NTQ1IC0wLjAzOTgsLTAuMDkyMzkgLTAuMDk1MywtMC4wOTIzOSB6IgogICAgICAgc3R5bGU9Im9wYWNpdHk6MTtmaWxsOnVybCgjbGluZWFyR3JhZGllbnQ2ODUwKTtmaWxsLW9wYWNpdHk6MTtzdHJva2U6bm9uZTtzdHJva2Utd2lkdGg6MC4yNjQ1ODMzMjtzdHJva2UtbWl0ZXJsaW1pdDo0O3N0cm9rZS1kYXNoYXJyYXk6bm9uZTtzdHJva2UtZGFzaG9mZnNldDowO3N0cm9rZS1vcGFjaXR5OjEiIC8+CiAgPC9nPgo8L3N2Zz4K"
+
+/***/ }),
+/* 47 */
+/***/ (function(module, exports) {
+
+module.exports = "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjxzdmcKICAgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIgogICB4bWxuczpjYz0iaHR0cDovL2NyZWF0aXZlY29tbW9ucy5vcmcvbnMjIgogICB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiCiAgIHhtbG5zOnN2Zz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiAgIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIKICAgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiCiAgIGlkPSJzdmc0NTUyIgogICB2ZXJzaW9uPSIxLjEiCiAgIHZpZXdCb3g9IjAgMCA0LjIzMzMzNDEgNC4yMzMzMzAyIgogICBoZWlnaHQ9IjQuMjMzMzMwMm1tIgogICB3aWR0aD0iNC4yMzMzMzQxbW0iPgogIDxkZWZzCiAgICAgaWQ9ImRlZnM0NTQ2Ij4KICAgIDxsaW5lYXJHcmFkaWVudAogICAgICAgeTI9IjI4Ni4yNTg4MiIKICAgICAgIHgyPSI3LjUwOTUyMzQiCiAgICAgICB5MT0iMjg0LjA5MDQyIgogICAgICAgeDE9IjcuNTA5NTIzNCIKICAgICAgIGdyYWRpZW50VHJhbnNmb3JtPSJtYXRyaXgoLTEuMzk2NzYwOCwwLDAsMS4zOTY3NjA4LC01Ny44OTAwNzYsLTI0My4wNTM4MSkiCiAgICAgICBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIKICAgICAgIGlkPSJsaW5lYXJHcmFkaWVudDQ1MTAiCiAgICAgICB4bGluazpocmVmPSIjbGluZWFyR3JhZGllbnQ0NTIyIiAvPgogICAgPGxpbmVhckdyYWRpZW50CiAgICAgICBpZD0ibGluZWFyR3JhZGllbnQ0NTIyIj4KICAgICAgPHN0b3AKICAgICAgICAgaWQ9InN0b3A0NTE4IgogICAgICAgICBvZmZzZXQ9IjAiCiAgICAgICAgIHN0eWxlPSJzdG9wLWNvbG9yOiM4Y2MzM2E7c3RvcC1vcGFjaXR5OjEiIC8+CiAgICAgIDxzdG9wCiAgICAgICAgIGlkPSJzdG9wNDUyMCIKICAgICAgICAgb2Zmc2V0PSIxIgogICAgICAgICBzdHlsZT0ic3RvcC1jb2xvcjojM2Y3YzA0O3N0b3Atb3BhY2l0eToxIiAvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPG1ldGFkYXRhCiAgICAgaWQ9Im1ldGFkYXRhNDU0OSI+CiAgICA8cmRmOlJERj4KICAgICAgPGNjOldvcmsKICAgICAgICAgcmRmOmFib3V0PSIiPgogICAgICAgIDxkYzpmb3JtYXQ+aW1hZ2Uvc3ZnK3htbDwvZGM6Zm9ybWF0PgogICAgICAgIDxkYzp0eXBlCiAgICAgICAgICAgcmRmOnJlc291cmNlPSJodHRwOi8vcHVybC5vcmcvZGMvZGNtaXR5cGUvU3RpbGxJbWFnZSIgLz4KICAgICAgICA8ZGM6dGl0bGU+PC9kYzp0aXRsZT4KICAgICAgPC9jYzpXb3JrPgogICAgPC9yZGY6UkRGPgogIDwvbWV0YWRhdGE+CiAgPGcKICAgICB0cmFuc2Zvcm09InRyYW5zbGF0ZSg3MS4wNjMwMzQsLTE1My42NzQ5NSkiCiAgICAgaWQ9ImxheWVyMSI+CiAgICA8cGF0aAogICAgICAgaWQ9InBhdGg0NTI4IgogICAgICAgZD0ibSAtNjguOTQ2MDA3LDE1My42NzQ5NSBhIDIuMTE2NTI2LDIuMTE2NTI1NiAwIDAgMCAtMi4xMTcwMjcsMi4xMTcwMyAyLjExNjUyNiwyLjExNjUyNTYgMCAwIDAgMi4xMTcwMjcsMi4xMTYzIDIuMTE2NTI2LDIuMTE2NTI1NiAwIDAgMCAyLjExNjMwNywtMi4xMTYzIDIuMTE2NTI2LDIuMTE2NTI1NiAwIDAgMCAtMi4xMTYzMDcsLTIuMTE3MDMgeiBtIC03LjM4ZS00LDEuMDY4MjUgMS4xNjQyNTcsMS40NDA3MSBhIDAuMTg1MDg5MywwLjE4NTA4OTMgMCAwIDEgMC4wNDQwMywwLjExNjkxIDAuMTg1MDg5MywwLjE4NTA4OTMgMCAwIDEgLTAuMzI5ODYxLDAuMTE0ODEgbCAtMC44Nzg0MjcsLTEuMDgyNyAtMC44NzYyNiwxLjA4MjcgYSAwLjE4NTMzNjQ2LDAuMTg1MzM2NDYgMCAxIDEgLTAuMjg4NzE4LC0wLjIzMTcgeiIKICAgICAgIHN0eWxlPSJvcGFjaXR5OjE7ZmlsbDp1cmwoI2xpbmVhckdyYWRpZW50NDUxMCk7ZmlsbC1vcGFjaXR5OjE7c3Ryb2tlOm5vbmU7c3Ryb2tlLXdpZHRoOjAuMjY0NTgzMzU7c3Ryb2tlLW1pdGVybGltaXQ6NDtzdHJva2UtZGFzaGFycmF5Om5vbmU7c3Ryb2tlLWRhc2hvZmZzZXQ6MDtzdHJva2Utb3BhY2l0eToxIiAvPgogIDwvZz4KPC9zdmc+Cg=="
+
+/***/ }),
+/* 48 */
+/***/ (function(module, exports) {
+
+module.exports = "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjxzdmcKICAgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIgogICB4bWxuczpjYz0iaHR0cDovL2NyZWF0aXZlY29tbW9ucy5vcmcvbnMjIgogICB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiCiAgIHhtbG5zOnN2Zz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiAgIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIKICAgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiCiAgIGlkPSJzdmc1MTQ2IgogICB2ZXJzaW9uPSIxLjEiCiAgIHZpZXdCb3g9IjAgMCA0LjIzMzMzMzEgNC4yMzMzMzQxIgogICBoZWlnaHQ9IjQuMjMzMzM0MW1tIgogICB3aWR0aD0iNC4yMzMzMzMxbW0iPgogIDxkZWZzCiAgICAgaWQ9ImRlZnM1MTQwIj4KICAgIDxsaW5lYXJHcmFkaWVudAogICAgICAgeTI9IjI4Ni4yNTg4MiIKICAgICAgIHgyPSI3LjUwOTUyMzQiCiAgICAgICB5MT0iMjg0LjA5MDQyIgogICAgICAgeDE9IjcuNTA5NTIzNCIKICAgICAgIGdyYWRpZW50VHJhbnNmb3JtPSJtYXRyaXgoLTEuMzk2NzYwMywwLDAsMS4zOTY3NjAzLC0zNy40Nzk0MjYsLTMzMi4yNTYwNykiCiAgICAgICBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIKICAgICAgIGlkPSJsaW5lYXJHcmFkaWVudDUxMTciCiAgICAgICB4bGluazpocmVmPSIjbGluZWFyR3JhZGllbnQ0NTIyIiAvPgogICAgPGxpbmVhckdyYWRpZW50CiAgICAgICBpZD0ibGluZWFyR3JhZGllbnQ0NTIyIj4KICAgICAgPHN0b3AKICAgICAgICAgaWQ9InN0b3A0NTE4IgogICAgICAgICBvZmZzZXQ9IjAiCiAgICAgICAgIHN0eWxlPSJzdG9wLWNvbG9yOiM4Y2MzM2E7c3RvcC1vcGFjaXR5OjEiIC8+CiAgICAgIDxzdG9wCiAgICAgICAgIGlkPSJzdG9wNDUyMCIKICAgICAgICAgb2Zmc2V0PSIxIgogICAgICAgICBzdHlsZT0ic3RvcC1jb2xvcjojM2Y3YzA0O3N0b3Atb3BhY2l0eToxIiAvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPG1ldGFkYXRhCiAgICAgaWQ9Im1ldGFkYXRhNTE0MyI+CiAgICA8cmRmOlJERj4KICAgICAgPGNjOldvcmsKICAgICAgICAgcmRmOmFib3V0PSIiPgogICAgICAgIDxkYzpmb3JtYXQ+aW1hZ2Uvc3ZnK3htbDwvZGM6Zm9ybWF0PgogICAgICAgIDxkYzp0eXBlCiAgICAgICAgICAgcmRmOnJlc291cmNlPSJodHRwOi8vcHVybC5vcmcvZGMvZGNtaXR5cGUvU3RpbGxJbWFnZSIgLz4KICAgICAgICA8ZGM6dGl0bGU+PC9kYzp0aXRsZT4KICAgICAgPC9jYzpXb3JrPgogICAgPC9yZGY6UkRGPgogIDwvbWV0YWRhdGE+CiAgPGcKICAgICB0cmFuc2Zvcm09InRyYW5zbGF0ZSg1MC42NTIzMTYsLTY0LjQ3MjU1NSkiCiAgICAgaWQ9ImxheWVyMSI+CiAgICA8cGF0aAogICAgICAgaWQ9InBhdGg1MTIxIgogICAgICAgZD0ibSAtNDguNTM1Mjg4LDY0LjQ3MjU1NSBhIDIuMTE2NTI1MywyLjExNjUyNDkgMCAwIDAgLTIuMTE3MDI4LDIuMTE3MDI3IDIuMTE2NTI1MywyLjExNjUyNDkgMCAwIDAgMi4xMTcwMjgsMi4xMTYzMDcgMi4xMTY1MjUzLDIuMTE2NTI0OSAwIDAgMCAyLjExNjMwNSwtMi4xMTYzMDcgMi4xMTY1MjUzLDIuMTE2NTI0OSAwIDAgMCAtMi4xMTYzMDUsLTIuMTE3MDI3IHogbSAtNy4zOWUtNCwwLjQ3ODU1MiAxLjE2NDI1NywxLjQ0MDcwMyBhIDAuMTg1MDg5MjMsMC4xODUwODkyMyAwIDAgMSAwLjA0NDAzLDAuMTE2OTM3IDAuMTg1MDg5MjMsMC4xODUwODkyMyAwIDAgMSAtMC4zMjk4NjIsMC4xMTQ3NzIgbCAtMC44Nzg0MjUsLTEuMDgyNjk1IC0wLjg3NjI2MSwxLjA4MjY5MyBhIDAuMTg1MzM2MzksMC4xODUzMzYzOSAwIDEgMSAtMC4yODg3MTksLTAuMjMxNjk2IHogbSAwLDEuMTM1Mzg0IDEuMTY0MjU3LDEuNDQwNzA1IGEgMC4xODUwODkyMywwLjE4NTA4OTIzIDAgMCAxIDAuMDQ0MDMsMC4xMTY5MzcgMC4xODUwODkyMywwLjE4NTA4OTIzIDAgMCAxIC0wLjMyOTg2MiwwLjExNDc3MiBsIC0wLjg3ODQyNSwtMS4wODI2OTYgLTAuODc2MjYxLDEuMDgyNjk0IGEgMC4xODUzMzYzOSwwLjE4NTMzNjM5IDAgMSAxIC0wLjI4ODcxOSwtMC4yMzE2OTYgeiIKICAgICAgIHN0eWxlPSJvcGFjaXR5OjE7ZmlsbDp1cmwoI2xpbmVhckdyYWRpZW50NTExNyk7ZmlsbC1vcGFjaXR5OjE7c3Ryb2tlOm5vbmU7c3Ryb2tlLXdpZHRoOjAuMjY0NTgzMzI7c3Ryb2tlLW1pdGVybGltaXQ6NDtzdHJva2UtZGFzaGFycmF5Om5vbmU7c3Ryb2tlLWRhc2hvZmZzZXQ6MDtzdHJva2Utb3BhY2l0eToxIiAvPgogIDwvZz4KPC9zdmc+Cg=="
 
 /***/ })
 /******/ ]);

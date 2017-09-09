@@ -26,7 +26,7 @@ const init = (): Model => ({
 
 enum Action {
   PushScope = "PushScope",
-  SetScope = "PopScope",
+  SetScope = "SetScope",
 }
 
 const actions: Actions = {
@@ -41,7 +41,7 @@ const actions: Actions = {
     (patch, index: number | null) => {
       patch((model) => ({
         ...model,
-        scope: index ? model.scope.slice(0, index + 1) : [],
+        scope: index === null ? [] : model.scope.slice(0, index + 1),
       }));
     },
 };
@@ -53,24 +53,36 @@ interface Props {
   act: ActionHandler;
 }
 
+const diffValue = (d: Diff): any => {
+  switch (d.type) {
+    case "del":
+      return d.prev;
+    default:
+      return d.next;
+  }
+};
+
 const scoped = (scope: any[], obj: any): any =>
   typeof obj === "undefined" || scope.length === 0
     ? obj
-    : scoped(scope.slice(1), obj[scope[0]]);
+    : scoped(scope.slice(1), isDiff(obj) ? diffValue(obj)[scope[0]] : obj[scope[0]]);
 
 const isDiff = (diff: any): diff is Diff =>
   diff instanceof Diff;
 
-const diffView = (diff: Diff) => (
+const diffView = (act: ActionHandler, diff: Diff) => (
   <span class={css[diff.type]}>
-    {diff.next}
+    {diff.type === "del"
+      ? JSON.stringify(diff.prev)
+      : valueView(act, diff.next)
+    }
   </span>
 );
 
-const renderValue = (act: ActionHandler, k: any, v: any, extraClass: string[] = []) => {
+const renderValue = (act: ActionHandler, v: any, k?: any, extraClass: string[] = []) => {
   if (is.container(v)) {
     return [
-      <span class={[css.expandObject].concat(extraClass)} on-click={act(Action.PushScope, k)}>
+      <span class={[css.expandObject].concat(extraClass)} on-click={k ? act(Action.PushScope, k) : undefined}>
         {is.pojo(v) ? "{}" : "[]"}
       </span>,
       <span class={css.preview}>
@@ -89,12 +101,9 @@ const objDiff = (act: ActionHandler, obj: any): JSX.Element => (
         <span class={css.val}>
           {(() => {
             if (isDiff(v)) {
-              if (v.type === "ident") {
-                return renderValue(act, k, v.next);
-              }
-              return renderValue(act, k, v.next, [css[v.type]]);
+              return renderValue(act, v.next, k, [css[v.type]]);
             }
-            return renderValue(act, k, v);
+            return renderValue(act, v, k);
           })()}
         </span>
       </div>,
@@ -104,7 +113,7 @@ const objDiff = (act: ActionHandler, obj: any): JSX.Element => (
 
 const valueView = (act: ActionHandler, v: any): string | JSX.Element => {
   if (isDiff(v)) {
-    return diffView(v);
+    return diffView(act, v);
   }
   if (is.container(v)) {
     return objDiff(act, v);
@@ -115,10 +124,18 @@ const valueView = (act: ActionHandler, v: any): string | JSX.Element => {
 const view = ({model, act}: Props) => (
   <div class={css.diffPane}>
     <div class={css.breadcrumbs}>
-      <span class={css.crumb} on-click={act(Action.SetScope, null)}>
-        (root)
-      </span>
-      {model.scope.map((key, index, keys) =>
+      {model.scope.length
+        ? [
+          <button class={[css.crumbButton, css.toRoot]} on-click={act(Action.SetScope, null)}>
+            go to root
+          </button>,
+          <button class={[css.crumbButton, css.upOne]} on-click={act(Action.SetScope, model.scope.length - 2)}>
+            up one level
+          </button>,
+        ]
+        : "Model"
+      }
+      {model.scope.map((key, index) =>
         <span class={css.crumb} on-click={act(Action.SetScope, index)}>
           {key}
         </span>,

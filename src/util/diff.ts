@@ -5,12 +5,9 @@
 
 import * as is from "util/is";
 
-type DiffType = "ident" | "update" | "add" | "del";
+type DiffType = "update" | "add" | "del";
 
 class Diff {
-  public static ident(val: any) {
-    return new Diff("ident", val, val);
-  }
   public static update(prev: any, next: any) {
     return new Diff("update", prev, next);
   }
@@ -41,7 +38,7 @@ function diff(x: is.Pojo, y: is.Pojo): is.Pojo;
 function diff(x: any[], y: any[]): any[];
 function diff(x: any, y: any): any[] | is.Pojo | Diff {
   if (x === y) {
-    return Diff.ident(x);
+    return y;
   }
   if (is.undef(x)) {
     return Diff.add(y);
