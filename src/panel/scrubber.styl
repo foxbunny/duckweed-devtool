@@ -10,22 +10,38 @@
   justify-content space-between
 
 .buttons
+  align-items center
   display inline-block
+  display inline-flex
   height 2rem
   text-align center
   vertical-align middle
   white-space nowrap
-  width 7rem
 
 .button
   background transparent
+  background-size cover
   border 0
   cursor pointer
-  font-size 160%
+  height 24px
+  margin-left 0.5rem
+  overflow hidden
   padding 0.2rem
+  text-indent -100vw
+  width 24px
+
+.next
+  background-image url("icons/forward.svg")
+
+.prev
+  background-image url("icons/backward.svg")
+
+.clear
+  background-image url("icons/stop.svg")
 
 .disabled
-  opacity 0.2;
+  cursor pointer
+  opacity 0.2
 
 .progress
   display inline-block
@@ -51,9 +67,15 @@
   height 31px
   position absolute
   top -15px
-  transform translateX(-16px)
+  margin-left: -16px
+  transform scale(0.5)
   transition all 0.2s
   width 31px
+
+.handle:hover
+.activeHandle
+    background: #7ac623
+    transform scale(1)
 
 .position
   display inline-block

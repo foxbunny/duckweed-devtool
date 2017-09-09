@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   id="svg6899"
+   version="1.1"
+   viewBox="0 0 4.2333302 4.2333369"
+   height="4.2333369mm"
+   width="4.2333302mm">
+  <defs
+     id="defs6893">
+    <linearGradient
+       y2="286.25882"
+       x2="7.5095234"
+       y1="284.09042"
+       x1="7.5095234"
+       gradientTransform="matrix(-1.3967617,0,0,1.3967617,228.61553,-420.70289)"
+       gradientUnits="userSpaceOnUse"
+       id="linearGradient6850"
+       xlink:href="#linearGradient4522" />
+    <linearGradient
+       id="linearGradient4522">
+      <stop
+         style="stop-color:#8cc33a;stop-opacity:1"
+         offset="0"
+         id="stop4518" />
+      <stop
+         style="stop-color:#3f7c04;stop-opacity:1"
+         offset="1"
+         id="stop4520" />
+    </linearGradient>
+  </defs>
+  <metadata
+     id="metadata6896">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     transform="translate(-215.44293,23.973879)"
+     id="layer1">
+    <path
+       id="path6848"
+       d="m 217.55996,-23.973879 c -1.16932,-2.79e-4 -2.11731,0.947717 -2.11703,2.11703 1.1e-4,1.169033 0.94799,2.116587 2.11703,2.116307 1.16875,-1.25e-4 2.11619,-0.947553 2.1163,-2.116307 2.8e-4,-1.169034 -0.94727,-2.116904 -2.1163,-2.11703 z m -0.64962,1.002576 h 1.29851 c 0.25418,0 0.46628,0.209225 0.46628,0.463394 v 1.301399 c 0,0.254183 -0.2121,0.463392 -0.46628,0.463392 h -1.29851 c -0.25417,0 -0.467,-0.209209 -0.467,-0.463392 v -1.301399 c 0,-0.254169 0.21283,-0.463394 0.467,-0.463394 z m 0,0.371004 c -0.0555,0 -0.096,0.03693 -0.096,0.09239 v 1.3014 c 0,0.05559 0.0405,0.09527 0.096,0.09527 h 1.29851 c 0.0554,0 0.0953,-0.03982 0.0953,-0.09527 v -1.3014 c 0,-0.05545 -0.0398,-0.09239 -0.0953,-0.09239 z"
+       style="opacity:1;fill:url(#linearGradient6850);fill-opacity:1;stroke:none;stroke-width:0.26458332;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+  </g>
+</svg>

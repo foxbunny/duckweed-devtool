@@ -2994,6 +2994,7 @@ var __spread = (this && this.__spread) || function () {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var css = __webpack_require__(34);
+var icon = __webpack_require__(43);
 var duckweed = __webpack_require__(0);
 var devtool_1 = __webpack_require__(8);
 var diff = __webpack_require__(37);
@@ -3011,24 +3012,35 @@ var Action;
 (function (Action) {
     Action["TogglePanel"] = "TogglePanel";
     Action["JumpToHistoryItem"] = "JumpToHistoryItem";
+    Action["ClearHistory"] = "ClearHistory";
     Action["DiffAction"] = "DiffAction";
     Action["ScrubberAction"] = "ScrubberAction";
 })(Action || (Action = {}));
 exports.Action = Action;
+var jumpTo = function (model, index) {
+    if (index === model.currentIndex) {
+        return model;
+    }
+    devtool_1.host2client.send("injectState", model.history[index].after);
+    return __assign({}, model, { currentIndex: index, diff: {
+            diff: model.history[index].diff,
+            scope: model.diff.scope,
+        }, scrubber: __assign({}, model.scrubber, { pos: index / (model.history.length - 1) }) });
+};
 var actions = (_a = {},
     _a[Action.TogglePanel] = function (patch) {
         patch(function (model) { return (__assign({}, model, { open: !model.open })); });
     },
     _a[Action.JumpToHistoryItem] = function (patch, index) {
+        patch(function (model) { return jumpTo(model, index); });
+    },
+    _a[Action.ClearHistory] = function (patch) {
         patch(function (model) {
-            if (index === model.currentIndex) {
-                return model;
-            }
-            devtool_1.host2client.send("injectState", model.history[index].after);
-            return __assign({}, model, { currentIndex: index, diff: {
-                    diff: model.history[index].diff,
-                    scope: model.diff.scope,
-                }, scrubber: __assign({}, model.scrubber, { pos: index / (model.history.length - 1) }) });
+            var currentState = model.history[model.currentIndex];
+            return __assign({}, model, { currentIndex: 0, diff: {
+                    diff: currentState.after,
+                    scope: [],
+                }, history: [currentState], scrubber: __assign({}, model.scrubber, { pos: 1 }) });
         });
     },
     _a[Action.DiffAction] = function (patch, action) {
@@ -3044,7 +3056,16 @@ var actions = (_a = {},
         for (var _i = 2; _i < arguments.length; _i++) {
             args[_i - 2] = arguments[_i];
         }
-        (_a = scrubber.actions)[action].apply(_a, __spread([patch.as(["scrubber"])], args));
+        var scoped = patch.as(["scrubber"], function (model) {
+            if (action !== scrubber.Action.Move) {
+                return model;
+            }
+            var pos = model.scrubber.pos;
+            var length = model.history.length;
+            var index = Math.round(pos * (length - 1));
+            return jumpTo(model, index);
+        });
+        (_a = scrubber.actions)[action].apply(_a, __spread([scoped], args));
         var _a;
     },
     _a);
@@ -3052,7 +3073,9 @@ exports.actions = actions;
 var view = function (_a) {
     var model = _a.model, act = _a.act;
     return (duckweed.html("div", { class: css.__DUCKWEED_DEVTOOL__ },
-        duckweed.html("button", { class: css.panelButton, "on-click": act([Action.TogglePanel]) }, model.open ? "▼" : "▲"),
+        duckweed.html("div", { class: css.toolbar },
+            duckweed.html("button", { class: css.panelButton, "on-click": act([Action.TogglePanel]) },
+                duckweed.html("img", { src: icon, alt: model.open ? "close" : "open" }))),
         model.open
             ? (duckweed.html("div", { class: css.panelContents, style: {
                     delayed: {
@@ -3064,7 +3087,7 @@ var view = function (_a) {
                     transform: "translateY(30vh)",
                     transition: "transform 0.2s",
                 } },
-                duckweed.html(scrubber.view, { model: model.scrubber, act: act.as(Action.ScrubberAction), jumpTo: act.as(Action.JumpToHistoryItem), current: model.currentIndex, length: model.history.length }),
+                duckweed.html(scrubber.view, { model: model.scrubber, act: act.as(Action.ScrubberAction), jumpTo: act.as(Action.JumpToHistoryItem), clear: act.as(Action.ClearHistory), current: model.currentIndex, length: model.history.length }),
                 duckweed.html(diff.view, { model: model.diff, act: act.as(Action.DiffAction) })))
             : null));
 };
@@ -3112,11 +3135,12 @@ exports = module.exports = __webpack_require__(2)(true);
 
 
 // module
-exports.push([module.i, "/**\n * (c) 2017 Hajime Yamasaki Vukelic\n * All rights reserved.\n */\n.__DUCKWEED_DEVTOOL__-AIqBV {\n  font-family: Arial, Helvetica, sans-serif;\n  font-size: 16px;\n  line-height: 120%;\n}\n.__DUCKWEED_DEVTOOL__-AIqBV * {\n  -webkit-box-sizing: border-box;\n          box-sizing: border-box;\n  font-size: 100%;\n  font-style: normal;\n  list-style: none;\n  margin: 0;\n  padding: 0;\n  text-decoration: none;\n}\n.panelButton-3KBNZ {\n  background: rgba(0,0,0,0.3);\n  border: none;\n  border-top-left-radius: 4px;\n  bottom: 0;\n  color: #fff;\n  cursor: pointer;\n  padding: 4px 10px;\n  position: fixed;\n  right: 0;\n  z-index: 5001;\n}\n.panelContents-1I8al {\n  background: rgba(255,255,255,0.8);\n  bottom: 0;\n  -webkit-box-shadow: 0 0 10px rgba(0,0,0,0.3);\n          box-shadow: 0 0 10px rgba(0,0,0,0.3);\n  height: 30vh;\n  left: 0;\n  overflow: hidden;\n  padding: 1rem;\n  position: fixed;\n  right: 0;\n  -webkit-transition: all;\n  transition: all;\n  z-index: 5000;\n}\n", "", {"version":3,"sources":["C:/Code/duckweed-devtool/src/panel/C:/Code/duckweed-devtool/src/panel/index.styl","C:/Code/duckweed-devtool/src/panel/C:/Code/duckweed-devtool/index.styl"],"names":[],"mappings":"AAAA;;;GCGG;ADEH;EACE,0CAAA;EACA,gBAAA;EACA,kBAAA;CCAD;ADED;EACE,+BAAA;UAAA,uBAAA;EACA,gBAAA;EACA,mBAAA;EACA,iBAAA;EACA,UAAA;EACA,WAAA;EACA,sBAAA;CCAD;ADED;EACE,4BAAA;EACA,aAAA;EACA,4BAAA;EACA,UAAA;EACA,YAAA;EACA,gBAAA;EACA,kBAAA;EACA,gBAAA;EACA,SAAA;EACA,cAAA;CCAD;ADED;EACE,kCAAA;EACA,UAAA;EACA,6CAAA;UAAA,qCAAA;EACA,aAAA;EACA,QAAA;EACA,iBAAA;EACA,cAAA;EACA,gBAAA;EACA,SAAA;EACA,wBAAA;EAAA,gBAAA;EACA,cAAA;CCAD","file":"index.styl","sourcesContent":["/**\n * (c) 2017 Hajime Yamasaki Vukelic\n * All rights reserved.\n */\n\n.__DUCKWEED_DEVTOOL__\n  font-family Arial, Helvetica, sans-serif\n  font-size 16px\n  line-height 120%\n\n.__DUCKWEED_DEVTOOL__ *\n  box-sizing border-box\n  font-size 100%\n  font-style normal\n  list-style none\n  margin 0\n  padding 0\n  text-decoration none\n\n.panelButton\n  background rgba(0, 0, 0, 0.3)\n  border none\n  border-top-left-radius 4px\n  bottom 0\n  color white\n  cursor pointer\n  padding 4px 10px\n  position fixed\n  right 0\n  z-index 5001\n\n.panelContents\n  background transparentify(white, 0.8)\n  bottom 0\n  box-shadow 0 0 10px transparentify(black, 0.3)\n  height 30vh\n  left 0\n  overflow hidden\n  padding 1rem\n  position fixed\n  right 0\n  transition all\n  z-index 5000\n","/**\n * (c) 2017 Hajime Yamasaki Vukelic\n * All rights reserved.\n */\n.__DUCKWEED_DEVTOOL__ {\n  font-family: Arial, Helvetica, sans-serif;\n  font-size: 16px;\n  line-height: 120%;\n}\n.__DUCKWEED_DEVTOOL__ * {\n  box-sizing: border-box;\n  font-size: 100%;\n  font-style: normal;\n  list-style: none;\n  margin: 0;\n  padding: 0;\n  text-decoration: none;\n}\n.panelButton {\n  background: rgba(0,0,0,0.3);\n  border: none;\n  border-top-left-radius: 4px;\n  bottom: 0;\n  color: #fff;\n  cursor: pointer;\n  padding: 4px 10px;\n  position: fixed;\n  right: 0;\n  z-index: 5001;\n}\n.panelContents {\n  background: rgba(255,255,255,0.8);\n  bottom: 0;\n  box-shadow: 0 0 10px rgba(0,0,0,0.3);\n  height: 30vh;\n  left: 0;\n  overflow: hidden;\n  padding: 1rem;\n  position: fixed;\n  right: 0;\n  transition: all;\n  z-index: 5000;\n}\n"],"sourceRoot":""}]);
+exports.push([module.i, "/**\n * (c) 2017 Hajime Yamasaki Vukelic\n * All rights reserved.\n */\n.__DUCKWEED_DEVTOOL__-AIqBV {\n  font-family: Arial, Helvetica, sans-serif;\n  font-size: 16px;\n  line-height: 120%;\n}\n.__DUCKWEED_DEVTOOL__-AIqBV * {\n  -webkit-box-sizing: border-box;\n          box-sizing: border-box;\n  font-size: 100%;\n  font-style: normal;\n  list-style: none;\n  margin: 0;\n  padding: 0;\n  text-decoration: none;\n}\n.toolbar-13rPB {\n  background: #555;\n  border-bottom-left-radius: 4px;\n  border-top-left-radius: 4px;\n  bottom: 4px;\n  opacity: 0.3;\n  padding: 2px 4px;\n  position: fixed;\n  right: 0;\n  z-index: 5001;\n}\n.toolbar-13rPB:hover {\n  opacity: 1;\n}\n.panelButton-3KBNZ {\n  background: transparent;\n  border: none;\n  color: #fff;\n  cursor: pointer;\n}\n.panelContents-1I8al {\n  background: rgba(255,255,255,0.8);\n  bottom: 0;\n  -webkit-box-shadow: 0 0 10px rgba(0,0,0,0.3);\n          box-shadow: 0 0 10px rgba(0,0,0,0.3);\n  height: 30vh;\n  left: 0;\n  overflow: hidden;\n  padding: 0.2rem 0.2rem 0.5rem;\n  position: fixed;\n  right: 0;\n  -webkit-transition: all;\n  transition: all;\n  z-index: 5000;\n}\n", "", {"version":3,"sources":["C:/Code/duckweed-devtool/src/panel/C:/Code/duckweed-devtool/src/panel/index.styl","C:/Code/duckweed-devtool/src/panel/C:/Code/duckweed-devtool/index.styl"],"names":[],"mappings":"AAAA;;;GCGG;ADEH;EACE,0CAAA;EACA,gBAAA;EACA,kBAAA;CCAD;ADED;EACE,+BAAA;UAAA,uBAAA;EACA,gBAAA;EACA,mBAAA;EACA,iBAAA;EACA,UAAA;EACA,WAAA;EACA,sBAAA;CCAD;ADED;EACE,iBAAA;EACA,+BAAA;EACA,4BAAA;EACA,YAAA;EACA,aAAA;EACA,iBAAA;EACA,gBAAA;EACA,SAAA;EACA,cAAA;CCAD;ADEC;EACE,WAAA;CCAH;ADED;EACE,wBAAA;EACA,aAAA;EACA,YAAA;EACA,gBAAA;CCAD;ADED;EACE,kCAAA;EACA,UAAA;EACA,6CAAA;UAAA,qCAAA;EACA,aAAA;EACA,QAAA;EACA,iBAAA;EACA,8BAAA;EACA,gBAAA;EACA,SAAA;EACA,wBAAA;EAAA,gBAAA;EACA,cAAA;CCAD","file":"index.styl","sourcesContent":["/**\n * (c) 2017 Hajime Yamasaki Vukelic\n * All rights reserved.\n */\n\n.__DUCKWEED_DEVTOOL__\n  font-family Arial, Helvetica, sans-serif\n  font-size 16px\n  line-height 120%\n\n.__DUCKWEED_DEVTOOL__ *\n  box-sizing border-box\n  font-size 100%\n  font-style normal\n  list-style none\n  margin 0\n  padding 0\n  text-decoration none\n\n.toolbar\n  background #555555\n  border-bottom-left-radius 4px\n  border-top-left-radius 4px\n  bottom 4px\n  opacity 0.3\n  padding 2px 4px\n  position fixed\n  right 0\n  z-index 5001\n\n  &:hover\n    opacity 1\n\n.panelButton\n  background transparent\n  border none\n  color white\n  cursor pointer\n\n.panelContents\n  background transparentify(white, 0.8)\n  bottom 0\n  box-shadow 0 0 10px transparentify(black, 0.3)\n  height 30vh\n  left 0\n  overflow hidden\n  padding 0.2rem 0.2rem 0.5rem\n  position fixed\n  right 0\n  transition all\n  z-index 5000\n","/**\n * (c) 2017 Hajime Yamasaki Vukelic\n * All rights reserved.\n */\n.__DUCKWEED_DEVTOOL__ {\n  font-family: Arial, Helvetica, sans-serif;\n  font-size: 16px;\n  line-height: 120%;\n}\n.__DUCKWEED_DEVTOOL__ * {\n  box-sizing: border-box;\n  font-size: 100%;\n  font-style: normal;\n  list-style: none;\n  margin: 0;\n  padding: 0;\n  text-decoration: none;\n}\n.toolbar {\n  background: #555;\n  border-bottom-left-radius: 4px;\n  border-top-left-radius: 4px;\n  bottom: 4px;\n  opacity: 0.3;\n  padding: 2px 4px;\n  position: fixed;\n  right: 0;\n  z-index: 5001;\n}\n.toolbar:hover {\n  opacity: 1;\n}\n.panelButton {\n  background: transparent;\n  border: none;\n  color: #fff;\n  cursor: pointer;\n}\n.panelContents {\n  background: rgba(255,255,255,0.8);\n  bottom: 0;\n  box-shadow: 0 0 10px rgba(0,0,0,0.3);\n  height: 30vh;\n  left: 0;\n  overflow: hidden;\n  padding: 0.2rem 0.2rem 0.5rem;\n  position: fixed;\n  right: 0;\n  transition: all;\n  z-index: 5000;\n}\n"],"sourceRoot":""}]);
 
 // exports
 exports.locals = {
 	"__DUCKWEED_DEVTOOL__": "__DUCKWEED_DEVTOOL__-AIqBV",
+	"toolbar": "toolbar-13rPB",
 	"panelButton": "panelButton-3KBNZ",
 	"panelContents": "panelContents-1I8al"
 };
@@ -3443,8 +3467,6 @@ var actions = (_a = {},
     _a[Action.Move] = function (patch, jumpTo, length, x) {
         patch(function (model) {
             var newPos = restrict(0, 1, model.initialPos + (x - model.initialMouse) / model.barWidth);
-            var newIndex = Math.round(newPos * (length - 1));
-            jumpTo(newIndex)();
             return __assign({}, model, { pos: newPos });
         });
     },
@@ -3471,23 +3493,25 @@ var mouseEventW = function (event) {
     ];
 };
 var view = function (_a) {
-    var model = _a.model, act = _a.act, jumpTo = _a.jumpTo, current = _a.current, length = _a.length;
+    var model = _a.model, act = _a.act, jumpTo = _a.jumpTo, clear = _a.clear, current = _a.current, length = _a.length;
     var hasPrev = current > 0;
     var hasNext = current < length - 1;
+    var atEnd = length === 1 || current === length - 1;
     var jumpBack = hasPrev ? jumpTo(current - 1) : undefined;
     var jumpNext = hasNext ? jumpTo(current + 1) : undefined;
     return (duckweed.html("div", { class: css.scrubber },
         duckweed.html("div", { class: css.buttons },
-            duckweed.html("button", { class: cls(css.prev, !hasPrev), "on-click": jumpBack }, "\u25C4"),
-            " ",
-            duckweed.html("button", { class: cls(css.next, !hasNext), "on-click": jumpNext }, "\u25BA")),
+            duckweed.html("button", { class: cls(css.prev, !hasPrev), "on-click": jumpBack }, "previous state"),
+            duckweed.html("button", { class: cls(css.clear, atEnd), "on-click": atEnd ? undefined : clear() }, "clear history"),
+            duckweed.html("button", { class: cls(css.next, !hasNext), "on-click": jumpNext }, "next state")),
         duckweed.html("div", { class: css.progress },
             duckweed.html("div", { class: css.bar },
-                duckweed.html("div", { class: css.handle, style: { left: model.pos * 100 + "%" }, "on-mousedown": from(mouseEventW, act(Action.Start)), "doc-mousemove": model.dragging ? from(mouseEvent, act(Action.Move, jumpTo, length)) : undefined, "doc-mouseup": model.dragging ? from(mouseEvent, act(Action.End)) : undefined }))),
+                duckweed.html("div", { class: (_b = {}, _b[css.handle] = true, _b[css.activeHandle] = model.dragging, _b), style: { left: model.pos * 100 + "%", tranition: model.dragging ? "" : "all 0.2s" }, "on-mousedown": from(mouseEventW, act(Action.Start)), "doc-mousemove": model.dragging ? from(mouseEvent, act(Action.Move, jumpTo, length)) : undefined, "doc-mouseup": model.dragging ? from(mouseEvent, act(Action.End)) : undefined }))),
         duckweed.html("div", { class: css.position },
             current + 1,
             " : ",
             length)));
+    var _b;
 };
 exports.view = view;
 var _a;
@@ -3533,19 +3557,47 @@ exports = module.exports = __webpack_require__(2)(true);
 
 
 // module
-exports.push([module.i, "/**\n * (c) 2017 Hajime Yamasaki Vukelic\n * All rights reserved.\n */\n.scrubber-2r-U7 {\n  -ms-flex-line-pack: center;\n      align-content: center;\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  height: 2rem;\n  -webkit-box-pack: justify;\n      -ms-flex-pack: justify;\n          justify-content: space-between;\n}\n.buttons-2B9Xe {\n  display: inline-block;\n  height: 2rem;\n  text-align: center;\n  vertical-align: middle;\n  white-space: nowrap;\n  width: 7rem;\n}\n.button-3vhP7 {\n  background: transparent;\n  border: 0;\n  cursor: pointer;\n  font-size: 160%;\n  padding: 0.2rem;\n}\n.disabled-PsXyv {\n  opacity: 0.2;\n}\n.progress-1HUr4 {\n  display: inline-block;\n  height: 31px;\n  position: relative;\n  vertical-align: middle;\n  width: 100%;\n}\n.bar-25eEA {\n  background: #444;\n  border-radius: 1px;\n  height: 3px;\n  left: 15px;\n  position: absolute;\n  right: 15px;\n  top: 15px;\n}\n.handle-31lRL {\n  background: #777;\n  border: 1px solid #ddd;\n  border-radius: 16px;\n  -webkit-box-shadow: 0 2px 5px rgba(0,0,0,0.3);\n          box-shadow: 0 2px 5px rgba(0,0,0,0.3);\n  height: 31px;\n  position: absolute;\n  top: -15px;\n  -webkit-transform: translateX(-16px);\n          transform: translateX(-16px);\n  -webkit-transition: all 0.2s;\n  transition: all 0.2s;\n  width: 31px;\n}\n.position-FXvCR {\n  display: inline-block;\n  font-family: monospace;\n  font-size: 90%;\n  line-height: 2rem;\n  padding: 0 0.5rem;\n  vertical-align: middle;\n  white-space: nowrap;\n}\n", "", {"version":3,"sources":["C:/Code/duckweed-devtool/src/panel/C:/Code/duckweed-devtool/src/panel/scrubber.styl","C:/Code/duckweed-devtool/src/panel/C:/Code/duckweed-devtool/scrubber.styl"],"names":[],"mappings":"AAAA;;;GCGG;ADEH;EACE,2BAAA;MAAA,sBAAA;EACA,qBAAA;EAAA,qBAAA;EAAA,cAAA;EACA,aAAA;EACA,0BAAA;MAAA,uBAAA;UAAA,+BAAA;CCAD;ADED;EACE,sBAAA;EACA,aAAA;EACA,mBAAA;EACA,uBAAA;EACA,oBAAA;EACA,YAAA;CCAD;ADED;EACE,wBAAA;EACA,UAAA;EACA,gBAAA;EACA,gBAAA;EACA,gBAAA;CCAD;ADED;EACE,aAAA;CCAD;ADED;EACE,sBAAA;EACA,aAAA;EACA,mBAAA;EACA,uBAAA;EACA,YAAA;CCAD;ADED;EACE,iBAAA;EACA,mBAAA;EACA,YAAA;EACA,WAAA;EACA,mBAAA;EACA,YAAA;EACA,UAAA;CCAD;ADED;EACE,iBAAA;EACA,uBAAA;EACA,oBAAA;EACA,8CAAA;UAAA,sCAAA;EACA,aAAA;EACA,mBAAA;EACA,WAAA;EACA,qCAAA;UAAA,6BAAA;EACA,6BAAA;EAAA,qBAAA;EACA,YAAA;CCAD;ADED;EACE,sBAAA;EACA,uBAAA;EACA,eAAA;EACA,kBAAA;EACA,kBAAA;EACA,uBAAA;EACA,oBAAA;CCAD","file":"scrubber.styl","sourcesContent":["/**\n * (c) 2017 Hajime Yamasaki Vukelic\n * All rights reserved.\n */\n\n.scrubber\n  align-content center\n  display flex\n  height 2rem\n  justify-content space-between\n\n.buttons\n  display inline-block\n  height 2rem\n  text-align center\n  vertical-align middle\n  white-space nowrap\n  width 7rem\n\n.button\n  background transparent\n  border 0\n  cursor pointer\n  font-size 160%\n  padding 0.2rem\n\n.disabled\n  opacity 0.2;\n\n.progress\n  display inline-block\n  height 31px\n  position relative\n  vertical-align middle\n  width 100%\n\n.bar\n  background #444444\n  border-radius 1px\n  height 3px\n  left 15px\n  position absolute\n  right 15px\n  top 15px\n\n.handle\n  background #777777\n  border 1px solid #dddddd\n  border-radius 16px\n  box-shadow 0 2px 5px transparentify(black, 0.3)\n  height 31px\n  position absolute\n  top -15px\n  transform translateX(-16px)\n  transition all 0.2s\n  width 31px\n\n.position\n  display inline-block\n  font-family monospace\n  font-size 90%\n  line-height 2rem\n  padding 0 0.5rem\n  vertical-align middle\n  white-space nowrap\n","/**\n * (c) 2017 Hajime Yamasaki Vukelic\n * All rights reserved.\n */\n.scrubber {\n  align-content: center;\n  display: flex;\n  height: 2rem;\n  justify-content: space-between;\n}\n.buttons {\n  display: inline-block;\n  height: 2rem;\n  text-align: center;\n  vertical-align: middle;\n  white-space: nowrap;\n  width: 7rem;\n}\n.button {\n  background: transparent;\n  border: 0;\n  cursor: pointer;\n  font-size: 160%;\n  padding: 0.2rem;\n}\n.disabled {\n  opacity: 0.2;\n}\n.progress {\n  display: inline-block;\n  height: 31px;\n  position: relative;\n  vertical-align: middle;\n  width: 100%;\n}\n.bar {\n  background: #444;\n  border-radius: 1px;\n  height: 3px;\n  left: 15px;\n  position: absolute;\n  right: 15px;\n  top: 15px;\n}\n.handle {\n  background: #777;\n  border: 1px solid #ddd;\n  border-radius: 16px;\n  box-shadow: 0 2px 5px rgba(0,0,0,0.3);\n  height: 31px;\n  position: absolute;\n  top: -15px;\n  transform: translateX(-16px);\n  transition: all 0.2s;\n  width: 31px;\n}\n.position {\n  display: inline-block;\n  font-family: monospace;\n  font-size: 90%;\n  line-height: 2rem;\n  padding: 0 0.5rem;\n  vertical-align: middle;\n  white-space: nowrap;\n}\n"],"sourceRoot":""}]);
+exports.push([module.i, "/**\n * (c) 2017 Hajime Yamasaki Vukelic\n * All rights reserved.\n */\n.scrubber-2r-U7 {\n  -ms-flex-line-pack: center;\n      align-content: center;\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  height: 2rem;\n  -webkit-box-pack: justify;\n      -ms-flex-pack: justify;\n          justify-content: space-between;\n}\n.buttons-2B9Xe {\n  -webkit-box-align: center;\n      -ms-flex-align: center;\n          align-items: center;\n  display: inline-block;\n  display: -webkit-inline-box;\n  display: -ms-inline-flexbox;\n  display: inline-flex;\n  height: 2rem;\n  text-align: center;\n  vertical-align: middle;\n  white-space: nowrap;\n}\n.button-3vhP7 {\n  background: transparent;\n  background-size: cover;\n  border: 0;\n  cursor: pointer;\n  height: 24px;\n  margin-left: 0.5rem;\n  overflow: hidden;\n  padding: 0.2rem;\n  text-indent: -100vw;\n  width: 24px;\n}\n.next-39MoX {\n  background-image: url(" + __webpack_require__(44) + ");\n}\n.prev-1P4hz {\n  background-image: url(" + __webpack_require__(45) + ");\n}\n.clear-gjHvr {\n  background-image: url(" + __webpack_require__(46) + ");\n}\n.disabled-PsXyv {\n  cursor: pointer;\n  opacity: 0.2;\n}\n.progress-1HUr4 {\n  display: inline-block;\n  height: 31px;\n  position: relative;\n  vertical-align: middle;\n  width: 100%;\n}\n.bar-25eEA {\n  background: #444;\n  border-radius: 1px;\n  height: 3px;\n  left: 15px;\n  position: absolute;\n  right: 15px;\n  top: 15px;\n}\n.handle-31lRL {\n  background: #777;\n  border: 1px solid #ddd;\n  border-radius: 16px;\n  -webkit-box-shadow: 0 2px 5px rgba(0,0,0,0.3);\n          box-shadow: 0 2px 5px rgba(0,0,0,0.3);\n  height: 31px;\n  position: absolute;\n  top: -15px;\n  margin-left: -16px;\n  -webkit-transform: scale(0.5);\n          transform: scale(0.5);\n  -webkit-transition: all 0.2s;\n  transition: all 0.2s;\n  width: 31px;\n}\n.handle-31lRL:hover,\n.activeHandle-1aAbR {\n  background: #7ac623;\n  -webkit-transform: scale(1);\n          transform: scale(1);\n}\n.position-FXvCR {\n  display: inline-block;\n  font-family: monospace;\n  font-size: 90%;\n  line-height: 2rem;\n  padding: 0 0.5rem;\n  vertical-align: middle;\n  white-space: nowrap;\n}\n", "", {"version":3,"sources":["C:/Code/duckweed-devtool/src/panel/C:/Code/duckweed-devtool/src/panel/scrubber.styl","C:/Code/duckweed-devtool/src/panel/C:/Code/duckweed-devtool/scrubber.styl"],"names":[],"mappings":"AAAA;;;GCGG;ADEH;EACE,2BAAA;MAAA,sBAAA;EACA,qBAAA;EAAA,qBAAA;EAAA,cAAA;EACA,aAAA;EACA,0BAAA;MAAA,uBAAA;UAAA,+BAAA;CCAD;ADED;EACE,0BAAA;MAAA,uBAAA;UAAA,oBAAA;EACA,sBAAA;EACA,4BAAA;EAAA,4BAAA;EAAA,qBAAA;EACA,aAAA;EACA,mBAAA;EACA,uBAAA;EACA,oBAAA;CCAD;ADED;EACE,wBAAA;EACA,uBAAA;EACA,UAAA;EACA,gBAAA;EACA,aAAA;EACA,oBAAA;EACA,iBAAA;EACA,gBAAA;EACA,oBAAA;EACA,YAAA;CCAD;ADED;EACE,gDAAA;CCAD;ADED;EACE,gDAAA;CCAD;ADED;EACE,gDAAA;CCAD;ADED;EACE,gBAAA;EACA,aAAA;CCAD;ADED;EACE,sBAAA;EACA,aAAA;EACA,mBAAA;EACA,uBAAA;EACA,YAAA;CCAD;ADED;EACE,iBAAA;EACA,mBAAA;EACA,YAAA;EACA,WAAA;EACA,mBAAA;EACA,YAAA;EACA,UAAA;CCAD;ADED;EACE,iBAAA;EACA,uBAAA;EACA,oBAAA;EACA,8CAAA;UAAA,sCAAA;EACA,aAAA;EACA,mBAAA;EACA,WAAA;EACA,mBAAA;EACA,8BAAA;UAAA,sBAAA;EACA,6BAAA;EAAA,qBAAA;EACA,YAAA;CCAD;ADED;;EAEI,oBAAA;EACA,4BAAA;UAAA,oBAAA;CCAH;ADED;EACE,sBAAA;EACA,uBAAA;EACA,eAAA;EACA,kBAAA;EACA,kBAAA;EACA,uBAAA;EACA,oBAAA;CCAD","file":"scrubber.styl","sourcesContent":["/**\n * (c) 2017 Hajime Yamasaki Vukelic\n * All rights reserved.\n */\n\n.scrubber\n  align-content center\n  display flex\n  height 2rem\n  justify-content space-between\n\n.buttons\n  align-items center\n  display inline-block\n  display inline-flex\n  height 2rem\n  text-align center\n  vertical-align middle\n  white-space nowrap\n\n.button\n  background transparent\n  background-size cover\n  border 0\n  cursor pointer\n  height 24px\n  margin-left 0.5rem\n  overflow hidden\n  padding 0.2rem\n  text-indent -100vw\n  width 24px\n\n.next\n  background-image url(\"icons/forward.svg\")\n\n.prev\n  background-image url(\"icons/backward.svg\")\n\n.clear\n  background-image url(\"icons/stop.svg\")\n\n.disabled\n  cursor pointer\n  opacity 0.2\n\n.progress\n  display inline-block\n  height 31px\n  position relative\n  vertical-align middle\n  width 100%\n\n.bar\n  background #444444\n  border-radius 1px\n  height 3px\n  left 15px\n  position absolute\n  right 15px\n  top 15px\n\n.handle\n  background #777777\n  border 1px solid #dddddd\n  border-radius 16px\n  box-shadow 0 2px 5px transparentify(black, 0.3)\n  height 31px\n  position absolute\n  top -15px\n  margin-left: -16px\n  transform scale(0.5)\n  transition all 0.2s\n  width 31px\n\n.handle:hover\n.activeHandle\n    background: #7ac623\n    transform scale(1)\n\n.position\n  display inline-block\n  font-family monospace\n  font-size 90%\n  line-height 2rem\n  padding 0 0.5rem\n  vertical-align middle\n  white-space nowrap\n","/**\n * (c) 2017 Hajime Yamasaki Vukelic\n * All rights reserved.\n */\n.scrubber {\n  align-content: center;\n  display: flex;\n  height: 2rem;\n  justify-content: space-between;\n}\n.buttons {\n  align-items: center;\n  display: inline-block;\n  display: inline-flex;\n  height: 2rem;\n  text-align: center;\n  vertical-align: middle;\n  white-space: nowrap;\n}\n.button {\n  background: transparent;\n  background-size: cover;\n  border: 0;\n  cursor: pointer;\n  height: 24px;\n  margin-left: 0.5rem;\n  overflow: hidden;\n  padding: 0.2rem;\n  text-indent: -100vw;\n  width: 24px;\n}\n.next {\n  background-image: url(\"icons/forward.svg\");\n}\n.prev {\n  background-image: url(\"icons/backward.svg\");\n}\n.clear {\n  background-image: url(\"icons/stop.svg\");\n}\n.disabled {\n  cursor: pointer;\n  opacity: 0.2;\n}\n.progress {\n  display: inline-block;\n  height: 31px;\n  position: relative;\n  vertical-align: middle;\n  width: 100%;\n}\n.bar {\n  background: #444;\n  border-radius: 1px;\n  height: 3px;\n  left: 15px;\n  position: absolute;\n  right: 15px;\n  top: 15px;\n}\n.handle {\n  background: #777;\n  border: 1px solid #ddd;\n  border-radius: 16px;\n  box-shadow: 0 2px 5px rgba(0,0,0,0.3);\n  height: 31px;\n  position: absolute;\n  top: -15px;\n  margin-left: -16px;\n  transform: scale(0.5);\n  transition: all 0.2s;\n  width: 31px;\n}\n.handle:hover,\n.activeHandle {\n  background: #7ac623;\n  transform: scale(1);\n}\n.position {\n  display: inline-block;\n  font-family: monospace;\n  font-size: 90%;\n  line-height: 2rem;\n  padding: 0 0.5rem;\n  vertical-align: middle;\n  white-space: nowrap;\n}\n"],"sourceRoot":""}]);
 
 // exports
 exports.locals = {
 	"scrubber": "scrubber-2r-U7",
 	"buttons": "buttons-2B9Xe",
 	"button": "button-3vhP7",
+	"next": "next-39MoX",
+	"prev": "prev-1P4hz",
+	"clear": "clear-gjHvr",
 	"disabled": "disabled-PsXyv",
 	"progress": "progress-1HUr4",
 	"bar": "bar-25eEA",
 	"handle": "handle-31lRL",
+	"activeHandle": "activeHandle-1aAbR",
 	"position": "position-FXvCR"
 };
+
+/***/ }),
+/* 43 */
+/***/ (function(module, exports) {
+
+module.exports = "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjxzdmcKICAgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIgogICB4bWxuczpjYz0iaHR0cDovL2NyZWF0aXZlY29tbW9ucy5vcmcvbnMjIgogICB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiCiAgIHhtbG5zOnN2Zz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiAgIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIKICAgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiCiAgIGlkPSJzdmc1MTM5IgogICB2ZXJzaW9uPSIxLjEiCiAgIHZpZXdCb3g9IjAgMCAzLjQ4MTQ1NiAzLjAzNzQ5MjgiCiAgIGhlaWdodD0iMy4wMzc0OTI4bW0iCiAgIHdpZHRoPSIzLjQ4MTQ1Nm1tIj4KICA8ZGVmcwogICAgIGlkPSJkZWZzNTEzMyI+CiAgICA8cmFkaWFsR3JhZGllbnQKICAgICAgIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIgogICAgICAgZ3JhZGllbnRUcmFuc2Zvcm09Im1hdHJpeCgwLjAyNTY1ODQzLDAuMDM1MDQ3ODEsLTAuMDQ3NDIxOTksMC4wMzQ3MTc0NSw2LjU3MjMwMDksMTQ4LjU5OTY1KSIKICAgICAgIHI9IjUxLjE2NzkxMiIKICAgICAgIGZ5PSI4NC44NDA0ODUiCiAgICAgICBmeD0iLTE1OC4zNTY5MiIKICAgICAgIGN5PSI4NC44NDA0ODUiCiAgICAgICBjeD0iLTE1OC4zNTY5MiIKICAgICAgIGlkPSJyYWRpYWxHcmFkaWVudDQ0OTMiCiAgICAgICB4bGluazpocmVmPSIjbGluZWFyR3JhZGllbnQ0NTIyIiAvPgogICAgPGxpbmVhckdyYWRpZW50CiAgICAgICBpZD0ibGluZWFyR3JhZGllbnQ0NTIyIj4KICAgICAgPHN0b3AKICAgICAgICAgc3R5bGU9InN0b3AtY29sb3I6IzhjYzMzYTtzdG9wLW9wYWNpdHk6MSIKICAgICAgICAgb2Zmc2V0PSIwIgogICAgICAgICBpZD0ic3RvcDQ1MTgiIC8+CiAgICAgIDxzdG9wCiAgICAgICAgIHN0eWxlPSJzdG9wLWNvbG9yOiMzZjdjMDQ7c3RvcC1vcGFjaXR5OjEiCiAgICAgICAgIG9mZnNldD0iMSIKICAgICAgICAgaWQ9InN0b3A0NTIwIiAvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICA8L2RlZnM+CiAgPG1ldGFkYXRhCiAgICAgaWQ9Im1ldGFkYXRhNTEzNiI+CiAgICA8cmRmOlJERj4KICAgICAgPGNjOldvcmsKICAgICAgICAgcmRmOmFib3V0PSIiPgogICAgICAgIDxkYzpmb3JtYXQ+aW1hZ2Uvc3ZnK3htbDwvZGM6Zm9ybWF0PgogICAgICAgIDxkYzp0eXBlCiAgICAgICAgICAgcmRmOnJlc291cmNlPSJodHRwOi8vcHVybC5vcmcvZGMvZGNtaXR5cGUvU3RpbGxJbWFnZSIgLz4KICAgICAgICA8ZGM6dGl0bGU+PC9kYzp0aXRsZT4KICAgICAgPC9jYzpXb3JrPgogICAgPC9yZGY6UkRGPgogIDwvbWV0YWRhdGE+CiAgPGcKICAgICB0cmFuc2Zvcm09InRyYW5zbGF0ZSg0LjAwODU4NTEsLTE0NS4wNDY3MykiCiAgICAgaWQ9ImxheWVyMSI+CiAgICA8cGF0aAogICAgICAgaWQ9InBhdGg0NDg1IgogICAgICAgZD0ibSAtMy42NjE3ODAxLDE0Ny4zODIxNCBjIDAuNzU5NTAyLDEuMTc4NTQgMi42NTM3MjQsMC43OTEwOCAzLjAxMTgxMzk4LC0wLjU0OTk5IDAuNDMwMzA5MSwtMS42MTE1MiAtMC4zMjAzMzIxLC0xLjg5MjM2IC0xLjQ2NjYyMTk4LC0xLjc1NDcxIC0wLjg5NzQ3NiwwLjEwNzc4IC0yLjYzMjA2NCwwLjY4MDk0IC0xLjU0NTE5MiwyLjMwNDcgeiIKICAgICAgIHN0eWxlPSJvcGFjaXR5OjE7ZmlsbDp1cmwoI3JhZGlhbEdyYWRpZW50NDQ5Myk7ZmlsbC1vcGFjaXR5OjE7c3Ryb2tlOm5vbmU7c3Ryb2tlLXdpZHRoOjAuMjY0NTgzMzI7c3Ryb2tlLW1pdGVybGltaXQ6NDtzdHJva2UtZGFzaGFycmF5Om5vbmU7c3Ryb2tlLWRhc2hvZmZzZXQ6MDtzdHJva2Utb3BhY2l0eToxIiAvPgogIDwvZz4KPC9zdmc+Cg=="
+
+/***/ }),
+/* 44 */
+/***/ (function(module, exports) {
+
+module.exports = "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjxzdmcKICAgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIgogICB4bWxuczpjYz0iaHR0cDovL2NyZWF0aXZlY29tbW9ucy5vcmcvbnMjIgogICB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiCiAgIHhtbG5zOnN2Zz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiAgIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIKICAgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiCiAgIGlkPSJzdmc1NzM2IgogICB2ZXJzaW9uPSIxLjEiCiAgIHZpZXdCb3g9IjAgMCA0LjIzMzMzMzEgNC4yMzMzMzMxIgogICBoZWlnaHQ9IjQuMjMzMzMzMW1tIgogICB3aWR0aD0iNC4yMzMzMzMxbW0iPgogIDxkZWZzCiAgICAgaWQ9ImRlZnM1NzMwIj4KICAgIDxsaW5lYXJHcmFkaWVudAogICAgICAgZ3JhZGllbnRUcmFuc2Zvcm09Im1hdHJpeCgxLjM5Njc2MDgsMCwwLDEuMzk2NzYwOCwtMzkuOTM3LC0zNzguMzY5MykiCiAgICAgICBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSIKICAgICAgIHkyPSIyODYuMjU4ODIiCiAgICAgICB4Mj0iNy41MDk1MjM0IgogICAgICAgeTE9IjI4NC4wOTA0MiIKICAgICAgIHgxPSI3LjUwOTUyMzQiCiAgICAgICBpZD0ibGluZWFyR3JhZGllbnQ1NzA2IgogICAgICAgeGxpbms6aHJlZj0iI2xpbmVhckdyYWRpZW50NDUyMiIgLz4KICAgIDxsaW5lYXJHcmFkaWVudAogICAgICAgaWQ9ImxpbmVhckdyYWRpZW50NDUyMiI+CiAgICAgIDxzdG9wCiAgICAgICAgIHN0eWxlPSJzdG9wLWNvbG9yOiM4Y2MzM2E7c3RvcC1vcGFjaXR5OjEiCiAgICAgICAgIG9mZnNldD0iMCIKICAgICAgICAgaWQ9InN0b3A0NTE4IiAvPgogICAgICA8c3RvcAogICAgICAgICBzdHlsZT0ic3RvcC1jb2xvcjojM2Y3YzA0O3N0b3Atb3BhY2l0eToxIgogICAgICAgICBvZmZzZXQ9IjEiCiAgICAgICAgIGlkPSJzdG9wNDUyMCIgLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgPC9kZWZzPgogIDxtZXRhZGF0YQogICAgIGlkPSJtZXRhZGF0YTU3MzMiPgogICAgPHJkZjpSREY+CiAgICAgIDxjYzpXb3JrCiAgICAgICAgIHJkZjphYm91dD0iIj4KICAgICAgICA8ZGM6Zm9ybWF0PmltYWdlL3N2Zyt4bWw8L2RjOmZvcm1hdD4KICAgICAgICA8ZGM6dHlwZQogICAgICAgICAgIHJkZjpyZXNvdXJjZT0iaHR0cDovL3B1cmwub3JnL2RjL2RjbWl0eXBlL1N0aWxsSW1hZ2UiIC8+CiAgICAgICAgPGRjOnRpdGxlPjwvZGM6dGl0bGU+CiAgICAgIDwvY2M6V29yaz4KICAgIDwvcmRmOlJERj4KICA8L21ldGFkYXRhPgogIDxnCiAgICAgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMzAuOTk3NTU1LC0xOC4zNTk0NikiCiAgICAgaWQ9ImxheWVyMSI+CiAgICA8cGF0aAogICAgICAgaWQ9InBhdGg1Njk4IgogICAgICAgZD0ibSAtMjguODgxMjQ5LDE4LjM1OTQ2IGEgMi4xMTY1MjYsMi4xMTY1MjU1IDAgMCAwIC0yLjExNjMwNiwyLjExNzAyNyAyLjExNjUyNiwyLjExNjUyNTUgMCAwIDAgMi4xMTYzMDYsMi4xMTYzMDYgMi4xMTY1MjYsMi4xMTY1MjU1IDAgMCAwIDIuMTE3MDI3LC0yLjExNjMwNiAyLjExNjUyNiwyLjExNjUyNTUgMCAwIDAgLTIuMTE3MDI3LC0yLjExNzAyNyB6IG0gLTAuNTA4ODY3LDAuOTA4NzQxIGEgMC4xODUwODkzLDAuMTg1MDg5MyAwIDAgMSAwLjExNjkzNywwLjA0NDAzIGwgMS40NDA3MDUsMS4xNjQyNTYgLTEuNDQwNzA1LDEuMTY0OTc5IGEgMC4xODUzMzY0NiwwLjE4NTMzNjQ2IDAgMSAxIC0wLjIzMTY5NiwtMC4yODg3MTkgbCAxLjA4MjY5NCwtMC44NzYyNiAtMS4wODI2OTQsLTAuODc4NDI2IGEgMC4xODUwODkzLDAuMTg1MDg5MyAwIDAgMSAwLjExNDc1OCwtMC4zMjk4NiB6IgogICAgICAgc3R5bGU9Im9wYWNpdHk6MTtmaWxsOnVybCgjbGluZWFyR3JhZGllbnQ1NzA2KTtmaWxsLW9wYWNpdHk6MTtzdHJva2U6bm9uZTtzdHJva2Utd2lkdGg6MC4yNjQ1ODMzNTtzdHJva2UtbWl0ZXJsaW1pdDo0O3N0cm9rZS1kYXNoYXJyYXk6bm9uZTtzdHJva2UtZGFzaG9mZnNldDowO3N0cm9rZS1vcGFjaXR5OjEiIC8+CiAgPC9nPgo8L3N2Zz4K"
+
+/***/ }),
+/* 45 */
+/***/ (function(module, exports) {
+
+module.exports = "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjxzdmcKICAgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIgogICB4bWxuczpjYz0iaHR0cDovL2NyZWF0aXZlY29tbW9ucy5vcmcvbnMjIgogICB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiCiAgIHhtbG5zOnN2Zz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiAgIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIKICAgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiCiAgIGlkPSJzdmc1NzM2IgogICB2ZXJzaW9uPSIxLjEiCiAgIHZpZXdCb3g9IjAgMCA0LjIzMzMzMzEgNC4yMzMzMzMxIgogICBoZWlnaHQ9IjQuMjMzMzMzMW1tIgogICB3aWR0aD0iNC4yMzMzMzMxbW0iPgogIDxkZWZzCiAgICAgaWQ9ImRlZnM1NzMwIj4KICAgIDxsaW5lYXJHcmFkaWVudAogICAgICAgZ3JhZGllbnRUcmFuc2Zvcm09Im1hdHJpeCgtMS4zOTY3NjA4LDAsMCwxLjM5Njc2MDgsLTE3LjgyNDc3NywtMzc4LjM2OTMpIgogICAgICAgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiCiAgICAgICB5Mj0iMjg2LjI1ODgyIgogICAgICAgeDI9IjcuNTA5NTIzNCIKICAgICAgIHkxPSIyODQuMDkwNDIiCiAgICAgICB4MT0iNy41MDk1MjM0IgogICAgICAgaWQ9ImxpbmVhckdyYWRpZW50NTcwNiIKICAgICAgIHhsaW5rOmhyZWY9IiNsaW5lYXJHcmFkaWVudDQ1MjIiIC8+CiAgICA8bGluZWFyR3JhZGllbnQKICAgICAgIGlkPSJsaW5lYXJHcmFkaWVudDQ1MjIiPgogICAgICA8c3RvcAogICAgICAgICBzdHlsZT0ic3RvcC1jb2xvcjojOGNjMzNhO3N0b3Atb3BhY2l0eToxIgogICAgICAgICBvZmZzZXQ9IjAiCiAgICAgICAgIGlkPSJzdG9wNDUxOCIgLz4KICAgICAgPHN0b3AKICAgICAgICAgc3R5bGU9InN0b3AtY29sb3I6IzNmN2MwNDtzdG9wLW9wYWNpdHk6MSIKICAgICAgICAgb2Zmc2V0PSIxIgogICAgICAgICBpZD0ic3RvcDQ1MjAiIC8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8bWV0YWRhdGEKICAgICBpZD0ibWV0YWRhdGE1NzMzIj4KICAgIDxyZGY6UkRGPgogICAgICA8Y2M6V29yawogICAgICAgICByZGY6YWJvdXQ9IiI+CiAgICAgICAgPGRjOmZvcm1hdD5pbWFnZS9zdmcreG1sPC9kYzpmb3JtYXQ+CiAgICAgICAgPGRjOnR5cGUKICAgICAgICAgICByZGY6cmVzb3VyY2U9Imh0dHA6Ly9wdXJsLm9yZy9kYy9kY21pdHlwZS9TdGlsbEltYWdlIiAvPgogICAgICAgIDxkYzp0aXRsZT48L2RjOnRpdGxlPgogICAgICA8L2NjOldvcms+CiAgICA8L3JkZjpSREY+CiAgPC9tZXRhZGF0YT4KICA8ZwogICAgIHRyYW5zZm9ybT0idHJhbnNsYXRlKDMwLjk5NzU1NSwtMTguMzU5NDYpIgogICAgIGlkPSJsYXllcjEiPgogICAgPHBhdGgKICAgICAgIGlkPSJwYXRoNTY5OCIKICAgICAgIGQ9Im0gLTI4Ljg4MDUyOCwxOC4zNTk0NiBhIDIuMTE2NTI2LDIuMTE2NTI1NSAwIDAgMSAyLjExNjMwNiwyLjExNzAyNyAyLjExNjUyNiwyLjExNjUyNTUgMCAwIDEgLTIuMTE2MzA2LDIuMTE2MzA2IDIuMTE2NTI2LDIuMTE2NTI1NSAwIDAgMSAtMi4xMTcwMjcsLTIuMTE2MzA2IDIuMTE2NTI2LDIuMTE2NTI1NSAwIDAgMSAyLjExNzAyNywtMi4xMTcwMjcgeiBtIDAuNTA4ODY3LDAuOTA4NzQxIGEgMC4xODUwODkzLDAuMTg1MDg5MyAwIDAgMCAtMC4xMTY5MzcsMC4wNDQwMyBsIC0xLjQ0MDcwNSwxLjE2NDI1NiAxLjQ0MDcwNSwxLjE2NDk3OSBhIDAuMTg1MzM2NDYsMC4xODUzMzY0NiAwIDEgMCAwLjIzMTY5NiwtMC4yODg3MTkgbCAtMS4wODI2OTQsLTAuODc2MjYgMS4wODI2OTQsLTAuODc4NDI2IGEgMC4xODUwODkzLDAuMTg1MDg5MyAwIDAgMCAtMC4xMTQ3NTgsLTAuMzI5ODYgeiIKICAgICAgIHN0eWxlPSJvcGFjaXR5OjE7ZmlsbDp1cmwoI2xpbmVhckdyYWRpZW50NTcwNik7ZmlsbC1vcGFjaXR5OjE7c3Ryb2tlOm5vbmU7c3Ryb2tlLXdpZHRoOjAuMjY0NTgzMzU7c3Ryb2tlLW1pdGVybGltaXQ6NDtzdHJva2UtZGFzaGFycmF5Om5vbmU7c3Ryb2tlLWRhc2hvZmZzZXQ6MDtzdHJva2Utb3BhY2l0eToxIiAvPgogIDwvZz4KPC9zdmc+Cg=="
+
+/***/ }),
+/* 46 */
+/***/ (function(module, exports) {
+
+module.exports = "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjxzdmcKICAgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIgogICB4bWxuczpjYz0iaHR0cDovL2NyZWF0aXZlY29tbW9ucy5vcmcvbnMjIgogICB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiCiAgIHhtbG5zOnN2Zz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciCiAgIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIKICAgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiCiAgIGlkPSJzdmc2ODk5IgogICB2ZXJzaW9uPSIxLjEiCiAgIHZpZXdCb3g9IjAgMCA0LjIzMzMzMDIgNC4yMzMzMzY5IgogICBoZWlnaHQ9IjQuMjMzMzM2OW1tIgogICB3aWR0aD0iNC4yMzMzMzAybW0iPgogIDxkZWZzCiAgICAgaWQ9ImRlZnM2ODkzIj4KICAgIDxsaW5lYXJHcmFkaWVudAogICAgICAgeTI9IjI4Ni4yNTg4MiIKICAgICAgIHgyPSI3LjUwOTUyMzQiCiAgICAgICB5MT0iMjg0LjA5MDQyIgogICAgICAgeDE9IjcuNTA5NTIzNCIKICAgICAgIGdyYWRpZW50VHJhbnNmb3JtPSJtYXRyaXgoLTEuMzk2NzYxNywwLDAsMS4zOTY3NjE3LDIyOC42MTU1MywtNDIwLjcwMjg5KSIKICAgICAgIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIgogICAgICAgaWQ9ImxpbmVhckdyYWRpZW50Njg1MCIKICAgICAgIHhsaW5rOmhyZWY9IiNsaW5lYXJHcmFkaWVudDQ1MjIiIC8+CiAgICA8bGluZWFyR3JhZGllbnQKICAgICAgIGlkPSJsaW5lYXJHcmFkaWVudDQ1MjIiPgogICAgICA8c3RvcAogICAgICAgICBzdHlsZT0ic3RvcC1jb2xvcjojOGNjMzNhO3N0b3Atb3BhY2l0eToxIgogICAgICAgICBvZmZzZXQ9IjAiCiAgICAgICAgIGlkPSJzdG9wNDUxOCIgLz4KICAgICAgPHN0b3AKICAgICAgICAgc3R5bGU9InN0b3AtY29sb3I6IzNmN2MwNDtzdG9wLW9wYWNpdHk6MSIKICAgICAgICAgb2Zmc2V0PSIxIgogICAgICAgICBpZD0ic3RvcDQ1MjAiIC8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8bWV0YWRhdGEKICAgICBpZD0ibWV0YWRhdGE2ODk2Ij4KICAgIDxyZGY6UkRGPgogICAgICA8Y2M6V29yawogICAgICAgICByZGY6YWJvdXQ9IiI+CiAgICAgICAgPGRjOmZvcm1hdD5pbWFnZS9zdmcreG1sPC9kYzpmb3JtYXQ+CiAgICAgICAgPGRjOnR5cGUKICAgICAgICAgICByZGY6cmVzb3VyY2U9Imh0dHA6Ly9wdXJsLm9yZy9kYy9kY21pdHlwZS9TdGlsbEltYWdlIiAvPgogICAgICAgIDxkYzp0aXRsZT48L2RjOnRpdGxlPgogICAgICA8L2NjOldvcms+CiAgICA8L3JkZjpSREY+CiAgPC9tZXRhZGF0YT4KICA8ZwogICAgIHRyYW5zZm9ybT0idHJhbnNsYXRlKC0yMTUuNDQyOTMsMjMuOTczODc5KSIKICAgICBpZD0ibGF5ZXIxIj4KICAgIDxwYXRoCiAgICAgICBpZD0icGF0aDY4NDgiCiAgICAgICBkPSJtIDIxNy41NTk5NiwtMjMuOTczODc5IGMgLTEuMTY5MzIsLTIuNzllLTQgLTIuMTE3MzEsMC45NDc3MTcgLTIuMTE3MDMsMi4xMTcwMyAxLjFlLTQsMS4xNjkwMzMgMC45NDc5OSwyLjExNjU4NyAyLjExNzAzLDIuMTE2MzA3IDEuMTY4NzUsLTEuMjVlLTQgMi4xMTYxOSwtMC45NDc1NTMgMi4xMTYzLC0yLjExNjMwNyAyLjhlLTQsLTEuMTY5MDM0IC0wLjk0NzI3LC0yLjExNjkwNCAtMi4xMTYzLC0yLjExNzAzIHogbSAtMC42NDk2MiwxLjAwMjU3NiBoIDEuMjk4NTEgYyAwLjI1NDE4LDAgMC40NjYyOCwwLjIwOTIyNSAwLjQ2NjI4LDAuNDYzMzk0IHYgMS4zMDEzOTkgYyAwLDAuMjU0MTgzIC0wLjIxMjEsMC40NjMzOTIgLTAuNDY2MjgsMC40NjMzOTIgaCAtMS4yOTg1MSBjIC0wLjI1NDE3LDAgLTAuNDY3LC0wLjIwOTIwOSAtMC40NjcsLTAuNDYzMzkyIHYgLTEuMzAxMzk5IGMgMCwtMC4yNTQxNjkgMC4yMTI4MywtMC40NjMzOTQgMC40NjcsLTAuNDYzMzk0IHogbSAwLDAuMzcxMDA0IGMgLTAuMDU1NSwwIC0wLjA5NiwwLjAzNjkzIC0wLjA5NiwwLjA5MjM5IHYgMS4zMDE0IGMgMCwwLjA1NTU5IDAuMDQwNSwwLjA5NTI3IDAuMDk2LDAuMDk1MjcgaCAxLjI5ODUxIGMgMC4wNTU0LDAgMC4wOTUzLC0wLjAzOTgyIDAuMDk1MywtMC4wOTUyNyB2IC0xLjMwMTQgYyAwLC0wLjA1NTQ1IC0wLjAzOTgsLTAuMDkyMzkgLTAuMDk1MywtMC4wOTIzOSB6IgogICAgICAgc3R5bGU9Im9wYWNpdHk6MTtmaWxsOnVybCgjbGluZWFyR3JhZGllbnQ2ODUwKTtmaWxsLW9wYWNpdHk6MTtzdHJva2U6bm9uZTtzdHJva2Utd2lkdGg6MC4yNjQ1ODMzMjtzdHJva2UtbWl0ZXJsaW1pdDo0O3N0cm9rZS1kYXNoYXJyYXk6bm9uZTtzdHJva2UtZGFzaG9mZnNldDowO3N0cm9rZS1vcGFjaXR5OjEiIC8+CiAgPC9nPgo8L3N2Zz4K"
 
 /***/ })
 /******/ ]);

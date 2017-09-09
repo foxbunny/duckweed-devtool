@@ -4,6 +4,7 @@
  */
 
 const css = require<CSSModule>("./index.styl");
+const icon = require<string>("icons/duckweed.svg");
 
 import * as duckweed from "duckweed";
 import {Actions, Props as RootProps} from "duckweed/runner";
@@ -44,9 +45,29 @@ const init = (): Model => ({
 enum Action {
   TogglePanel = "TogglePanel",
   JumpToHistoryItem = "JumpToHistoryItem",
+  ClearHistory = "ClearHistory",
   DiffAction = "DiffAction",
   ScrubberAction = "ScrubberAction",
 }
+
+const jumpTo = (model: Model, index: number) => {
+  if (index === model.currentIndex) {
+    return model;
+  }
+  host2client.send("injectState", model.history[index].after);
+  return {
+    ...model,
+    currentIndex: index,
+    diff: {
+      diff: model.history[index].diff,
+      scope: model.diff.scope,
+    },
+    scrubber: {
+      ...model.scrubber,
+      pos: index / (model.history.length - 1),
+    },
+  };
+};
 
 const actions: Actions = {
   [Action.TogglePanel]:
@@ -55,21 +76,23 @@ const actions: Actions = {
     },
   [Action.JumpToHistoryItem]:
     (patch, index) => {
+      patch((model) => jumpTo(model, index));
+    },
+  [Action.ClearHistory]:
+    (patch) => {
       patch((model) => {
-        if (index === model.currentIndex) {
-          return model;
-        }
-        host2client.send("injectState", model.history[index].after);
+        const currentState = model.history[model.currentIndex];
         return {
           ...model,
-          currentIndex: index,
+          currentIndex: 0,
           diff: {
-            diff: model.history[index].diff,
-            scope: model.diff.scope,
+            diff: currentState.after,
+            scope: [],
           },
+          history: [currentState],
           scrubber: {
             ...model.scrubber,
-            pos: index / (model.history.length - 1),
+            pos: 1,
           },
         };
       });
@@ -80,7 +103,16 @@ const actions: Actions = {
     },
   [Action.ScrubberAction]:
     (patch, action, ...args) => {
-      scrubber.actions[action](patch.as(["scrubber"]), ...args);
+      const scoped = patch.as(["scrubber"], (model) => {
+        if (action !== scrubber.Action.Move) {
+          return model;
+        }
+        const pos = model.scrubber.pos;
+        const length = model.history.length;
+        const index = Math.round(pos * (length - 1));
+        return jumpTo(model, index);
+      });
+      scrubber.actions[action](scoped, ...args);
     },
 };
 
@@ -92,9 +124,11 @@ interface Props extends RootProps {
 
 const view = ({model, act}: Props) => (
   <div class={css.__DUCKWEED_DEVTOOL__}>
-    <button class={css.panelButton} on-click={act([Action.TogglePanel])}>
-      {model.open ? "▼" : "▲"}
-    </button>
+    <div class={css.toolbar}>
+      <button class={css.panelButton} on-click={act([Action.TogglePanel])}>
+        <img src={icon} alt={model.open ? "close" : "open"} />
+      </button>
+    </div>
     {model.open
       ? (
         <div class={css.panelContents} style={{
@@ -111,6 +145,7 @@ const view = ({model, act}: Props) => (
             model={model.scrubber}
             act={act.as(Action.ScrubberAction)}
             jumpTo={act.as(Action.JumpToHistoryItem)}
+            clear={act.as(Action.ClearHistory)}
             current={model.currentIndex}
             length={model.history.length}
             />

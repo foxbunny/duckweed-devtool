@@ -17,17 +17,25 @@
   padding 0
   text-decoration none
 
-.panelButton
-  background rgba(0, 0, 0, 0.3)
-  border none
+.toolbar
+  background #555555
+  border-bottom-left-radius 4px
   border-top-left-radius 4px
-  bottom 0
-  color white
-  cursor pointer
-  padding 4px 10px
+  bottom 4px
+  opacity 0.3
+  padding 2px 4px
   position fixed
   right 0
   z-index 5001
+
+  &:hover
+    opacity 1
+
+.panelButton
+  background transparent
+  border none
+  color white
+  cursor pointer
 
 .panelContents
   background transparentify(white, 0.8)
@@ -36,7 +44,7 @@
   height 30vh
   left 0
   overflow hidden
-  padding 1rem
+  padding 0.2rem 0.2rem 0.5rem
   position fixed
   right 0
   transition all

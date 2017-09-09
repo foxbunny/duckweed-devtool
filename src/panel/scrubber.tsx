@@ -54,8 +54,6 @@ const actions: Actions = {
     (patch, jumpTo, length, x) => {
       patch((model) => {
         const newPos = restrict(0, 1, model.initialPos + (x - model.initialMouse) / model.barWidth);
-        const newIndex = Math.round(newPos * (length - 1));
-        jumpTo(newIndex)();
         return {
           ...model,
           pos: newPos,
@@ -79,6 +77,7 @@ interface Props {
   model: Model;
   act: ActionHandler;
   jumpTo: (x: number) => void;
+  clear: () => void;
   current: number;
   length: number;
 }
@@ -98,25 +97,26 @@ const mouseEventW = (event: MouseEvent) =>
     ((event.target as HTMLElement).parentNode as HTMLElement).offsetWidth,
   ];
 
-const view = ({model, act, jumpTo, current, length}: Props) => {
+const view = ({model, act, jumpTo, clear, current, length}: Props) => {
   const hasPrev = current > 0;
   const hasNext = current < length - 1;
+  const atEnd = length === 1 || current === length - 1;
   const jumpBack = hasPrev ? jumpTo(current - 1) : undefined;
   const jumpNext = hasNext ? jumpTo(current + 1) : undefined;
   return (
     <div class={css.scrubber}>
       <div class={css.buttons}>
-        <button class={cls(css.prev, !hasPrev)} on-click={jumpBack}>◄</button>
-        {" "}
-        <button class={cls(css.next, !hasNext)} on-click={jumpNext}>►</button>
+        <button class={cls(css.prev, !hasPrev)} on-click={jumpBack}>previous state</button>
+        <button class={cls(css.clear, atEnd)} on-click={atEnd ? undefined : clear()}>clear history</button>
+        <button class={cls(css.next, !hasNext)} on-click={jumpNext}>next state</button>
       </div>
       <div
         class={css.progress}
       >
         <div class={css.bar}>
           <div
-            class={css.handle}
-            style={{left: `${model.pos * 100}%`}}
+            class={{[css.handle]: true, [css.activeHandle]: model.dragging}}
+            style={{left: `${model.pos * 100}%`, tranition: model.dragging ? "" : "all 0.2s"}}
             on-mousedown={from(mouseEventW, act(Action.Start))}
             doc-mousemove={model.dragging ? from(mouseEvent, act(Action.Move, jumpTo, length)) : undefined}
             doc-mouseup={model.dragging ? from(mouseEvent, act(Action.End)) : undefined}
