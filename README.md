@@ -50,9 +50,9 @@ duckweed.runner(model, actions, views, {
 
 ## How it works
 
-For the information on how to use the devtool, see the [User manual](./doc/manual.md).
+For the information on how to use the devtool, see the [User manual](./docs/manual.md).
 
-For the technical information, see the [Under the hood](./doc/under-the-hood.md).
+For the technical information, see the [Under the hood](./docs/under-the-hood.md).
 
 ## Limitations
 
