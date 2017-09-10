@@ -10,6 +10,8 @@ application to a previous state.
 
 ## Features
 
+![screenshot of the Duckweed devtool](./media/screenshot.jpg)
+
 - Time travel
 - Model state inspection
 - Model patch performance chart
