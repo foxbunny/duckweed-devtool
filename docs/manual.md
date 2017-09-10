@@ -4,6 +4,10 @@ This manual will describe the process of working with the devtool. If you wish
 to know more about how the devtool works, look at the [Under the
 hook](./under-the-hood.md) documentation.
 
+The devtool monitors changes the application makes to the model. Simply put, the
+change corresponds to a single call to a model patcher, the `patch()`, in the
+actions.
+
 ## The devtool toolbar
 
 ![devtool toolbar](../media/icon.jpg)
@@ -21,9 +25,8 @@ and the details of the currently selected model state.
 
 The top portion is called the 'scrubber' (the term comes from video editing
 software), and is used to jump to different parts of the state. The lower
-portion of the panel is called the diff panel and displays the model state at
-the given scrubber position with some hints about the differences compared to
-the previous state.
+portion of the panel is called the main panel and displays either the model
+inspector or the performance chart.
 
 ## The scrubber controls
 
@@ -51,21 +54,21 @@ state. To the right of the bar, you will see two numbers. The first number is
 the current step in the history, and the second number is the total number of
 steps (state changes).
 
-## The diff panel
+## The model inspector
 
-The diff panel is used to inspect the model state in more detail. The details of
-the state are scoped. As you drill down into different properties of the model,
-the displayed state details will be focused on the part of the model you drilled
-down into.
+The model panel is used to inspect the model state in more detail. The
+details of the state are scoped. As you drill down into different properties
+of the model, the displayed state details will be focused on the part of the
+model you drilled down into.
 
-![diff panel](../media/inspector-breadcrumbs.jpg)
+![model inspector tab](../media/inspector-breadcrumbs.jpg)
 
-The top of the diff panel contains the breadcrumbs bar. This bar says "Model" if
-you are at the root of the model. As you drill down, you will see two buttons
-and a list of keys. The first button (double-chevron) will take you back to the
-root of the model, and the second button (single-chevron) will take you one
-level up. The keys can be clicked and will take you to that particular portion
-of the model state.
+The top of the model inspector contains the breadcrumbs bar. This bar says
+"Model" if you are at the root of the model. As you drill down, you will see
+two buttons and a list of keys. The first button (double-chevron) will take
+you back to the root of the model, and the second button (single-chevron)
+will take you one level up. The keys can be clicked and will take you to that
+particular portion of the model state.
 
 Below the breadcrumbs bar, you will see the model data. The data is shown as a
 list of keys under the current key (or the root of the model) with the
@@ -78,9 +81,9 @@ The expand icons look like these:
 ![expand icons](../media/expand-icons.jpg)
 
 Clicking the expand icon will drill down into the object or the array and the
-breadcrumb bar will update. Once you've drilled down, you can jump to different
-parts of the history, and the diff panel scope will remain stable so you can
-observe changes in that particular scope.
+breadcrumb bar will update. Once you've drilled down, you can jump to
+different parts of the history, and the inspector scope will remain stable so
+you can observe changes in that particular scope.
 
 The display of the values may provide some cues as to what happend with them.
 
@@ -95,3 +98,18 @@ The values displayed in green signify values that have been added (new key):
 And the values displayed in violet are values that have been changed:
 
 ![diff updated](../media/diff-update.jpg)
+
+## Performance chart
+
+![performance chart](../media/chart.jpg)
+
+The performance chart displays a horizontal bar with plotted model patch
+timings. Each segment of the bar represents a single model state change, and the
+width of the segment represent the time it took relative to the sum total of all
+the changes.
+
+This can quickly reveal changes that took a lot of time to complete. Hovering
+over the change will display the time the change took in milliseconds.
+
+Clicking on the segment will jump us to that state. We can then switch to the
+model inspector and get some more information about the change.

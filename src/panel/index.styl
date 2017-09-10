@@ -49,3 +49,47 @@
   right 0
   transition all
   z-index 5000
+
+.tabs
+  border-bottom 1px solid #dddddd
+  display flex
+  height 26px
+  justify-content flex-start
+  padding 0 0.5rem
+  text-align right
+
+.tabButton
+  align-items center
+  background linear-gradient(to bottom, transparent, transparentify(#dddddd, 0.4) 80%, #dddddd)
+  border 1px solid #dddddd
+  border-bottom 0
+  border-top-left-radius 5px
+  cursor pointer
+  display inline-flex
+  font-size 90%
+  line-height 26px
+  margin-right 0.5rem
+  padding 0 0.5rem
+
+.currentTab
+  background transparent
+  cursor normal
+
+.tabIcon
+  background-size cover
+  display inline-block
+  height 16px
+  margin-right 0.4rem
+  width 16px
+
+.diffIcon
+  background-image url("icons/object.svg")
+
+.graphIcon
+  background-image url("icons/performance.svg")
+
+.tabLabel
+  display inline-block
+
+.infoPanel
+  height calc(30vh - 64px)

@@ -7,11 +7,12 @@ const css = require<CSSModule>("./index.styl");
 const icon = require<string>("icons/duckweed.svg");
 
 import * as duckweed from "duckweed";
-import {Actions, Props as RootProps} from "duckweed/runner";
+import {ActionHandler, Actions, Props as RootProps} from "duckweed/runner";
 
 import {host2client} from "devtool";
 
 import * as diff from "./diff";
+import * as graph from "./graph";
 import * as scrubber from "./scrubber";
 
 interface HistoryItem {
@@ -22,12 +23,15 @@ interface HistoryItem {
   diff: any;
 }
 
+type DisplayMode = "diff" | "graph";
+
 // Model
 
 interface Model {
   currentIndex: number;
   history: HistoryItem[];
   open: boolean;
+  panel: DisplayMode;
   diff: diff.Model;
   scrubber: scrubber.Model;
 }
@@ -37,6 +41,7 @@ const init = (): Model => ({
   diff: diff.init(),
   history: [],
   open: false,
+  panel: "diff",
   scrubber: scrubber.init(),
 });
 
@@ -46,6 +51,7 @@ enum Action {
   TogglePanel = "TogglePanel",
   JumpToHistoryItem = "JumpToHistoryItem",
   ClearHistory = "ClearHistory",
+  SwitchDisplay = "SwitchDisplay",
   DiffAction = "DiffAction",
   ScrubberAction = "ScrubberAction",
 }
@@ -99,6 +105,13 @@ const actions: Actions = {
         };
       });
     },
+  [Action.SwitchDisplay]:
+    (patch, mode: DisplayMode) => {
+      patch((model) => ({
+        ...model,
+        panel: mode,
+      }));
+    },
   [Action.DiffAction]:
     (patch, action, ...args) => {
       diff.actions[action](patch.as(["diff"]), ...args);
@@ -123,6 +136,20 @@ const actions: Actions = {
 interface Props extends RootProps {
   model: Model;
 }
+
+const tab = (act: ActionHandler, currentPanel: string, targetPanel: string, label: string) => (
+  <a
+    class={{
+      [css.tabButton]: true,
+      [css[targetPanel]]: true,
+      [css.currentTab]: currentPanel === targetPanel,
+    }}
+    on-click={currentPanel !== targetPanel ? act(Action.SwitchDisplay, targetPanel) : undefined}
+  >
+    <span class={[css.tabIcon, css[targetPanel + "Icon"]]} />
+    <span class={css.tabLabel}>{label}</span>
+  </a>
+);
 
 const view = ({model, act}: Props) => (
   <div class={css.__DUCKWEED_DEVTOOL__}>
@@ -151,9 +178,20 @@ const view = ({model, act}: Props) => (
             current={model.currentIndex}
             length={model.history.length}
             />
-          <diff.view
-            model={model.diff}
-            act={act.as(Action.DiffAction)} />
+          <div class={css.tabs}>
+            {tab(act, model.panel, "diff", "Model inspector")}
+            {tab(act, model.panel, "graph", "Performance chart")}
+          </div>
+          <div class={css.infoPanel}>
+            {model.panel === "diff"
+              ? <diff.view
+                  model={model.diff}
+                  act={act.as(Action.DiffAction)} />
+              : <graph.view
+                  history={model.history}
+                  jumpTo={act.as(Action.JumpToHistoryItem)} />
+            }
+          </div>
         </div>
       )
       : null}
@@ -161,6 +199,7 @@ const view = ({model, act}: Props) => (
 );
 
 export {
+  HistoryItem,
   Model,
   init,
   Action,

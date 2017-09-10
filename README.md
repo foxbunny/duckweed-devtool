@@ -12,6 +12,7 @@ application to a previous state.
 
 - Time travel
 - Model state inspection
+- Model patch performance chart
 - In-browser (no extensions, works in any reasonably modern browser)
 
 ## Demo

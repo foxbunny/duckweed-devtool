@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   id="svg4607"
+   version="1.1"
+   viewBox="0 0 4.2333341 4.2333341"
+   height="4.2333341mm"
+   width="4.2333341mm">
+  <defs
+     id="defs4601">
+    <linearGradient
+       y2="286.25882"
+       x2="7.5095234"
+       y1="284.09042"
+       x1="7.5095234"
+       gradientTransform="matrix(-1.3967603,0,0,1.3967603,92.54435,-354.93468)"
+       gradientUnits="userSpaceOnUse"
+       id="linearGradient4536"
+       xlink:href="#linearGradient4522" />
+    <linearGradient
+       id="linearGradient4522">
+      <stop
+         style="stop-color:#8cc33a;stop-opacity:1"
+         offset="0"
+         id="stop4518" />
+      <stop
+         style="stop-color:#3f7c04;stop-opacity:1"
+         offset="1"
+         id="stop4520" />
+    </linearGradient>
+  </defs>
+  <metadata
+     id="metadata4604">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     transform="translate(-79.371493,-41.793983)"
+     id="layer1">
+    <path
+       id="path4542"
+       d="m 81.488521,41.793983 a 2.1165253,2.1165249 0 0 0 -2.117028,2.117028 2.1165253,2.1165249 0 0 0 2.117028,2.116306 2.1165253,2.1165249 0 0 0 2.116306,-2.116306 2.1165253,2.1165249 0 0 0 -2.116306,-2.117028 z m -0.791089,0.779541 0.186223,0.262733 c 0.180628,-0.09978 0.385791,-0.15995 0.604866,-0.160238 0.635648,8.33e-4 1.171117,0.474895 1.248707,1.10579 h -0.202825 c -0.07624,-0.519196 -0.521118,-0.903787 -1.045882,-0.904409 -0.175894,1.34e-4 -0.341523,0.04634 -0.488657,0.123432 l 0.779541,1.100016 h 0.797583 a 0.20327805,0.20327805 0 1 1 0,0.406372 h -2.179823 a 0.20327805,0.20327805 0 1 1 0,-0.406372 H 81.1832 l -0.321921,-1.01268 c -0.219517,0.162716 -0.377121,0.405972 -0.419363,0.693647 h -0.202103 c 0.04647,-0.377905 0.259061,-0.696887 0.557227,-0.894305 z"
+       style="opacity:1;fill:url(#linearGradient4536);fill-opacity:1;stroke:none;stroke-width:0.26458332;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+  </g>
+</svg>

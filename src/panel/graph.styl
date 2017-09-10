@@ -1,0 +1,32 @@
+/**
+ * (c) 2017 Hajime Yamasaki Vukelic
+ * All rights reserved.
+ */
+
+.note
+  color #999
+  font-size 120%
+  padding 0.5rem
+
+.graph
+  display flex
+  justify-content space-between
+  margin 0.5rem 0.5rem 2rem
+
+.segment
+  height 2rem
+  position relative
+  transition width 0.3s
+
+  &:hover .segmentTip
+    background #dddddd
+    border #777777
+    box-shadow 0 2px 3px transparentify(black, 0.3)
+    display block
+    left 0
+    padding 0.2rem
+    position absolute
+    top: 2.2rem
+
+.segmentTip
+  display: none
