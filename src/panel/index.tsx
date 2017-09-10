@@ -50,7 +50,7 @@ enum Action {
   ScrubberAction = "ScrubberAction",
 }
 
-const jumpTo = (model: Model, index: number) => {
+const jumpTo = (model: Model, index: number, setPos: boolean = false) => {
   if (index === model.currentIndex) {
     return model;
   }
@@ -62,10 +62,12 @@ const jumpTo = (model: Model, index: number) => {
       diff: model.history[index].diff,
       scope: model.diff.scope,
     },
-    scrubber: {
-      ...model.scrubber,
-      pos: index / (model.history.length - 1),
-    },
+    scrubber: setPos
+      ? {
+        ...model.scrubber,
+        pos: index / (model.history.length - 1),
+      }
+      : model.scrubber,
   };
 };
 
@@ -76,7 +78,7 @@ const actions: Actions = {
     },
   [Action.JumpToHistoryItem]:
     (patch, index) => {
-      patch((model) => jumpTo(model, index));
+      patch((model) => jumpTo(model, index, true));
     },
   [Action.ClearHistory]:
     (patch) => {

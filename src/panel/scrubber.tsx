@@ -53,10 +53,15 @@ const actions: Actions = {
   [Action.Move]:
     (patch, jumpTo, length, x) => {
       patch((model) => {
+        if (!model.dragging) {
+          return model;
+        }
         const newPos = restrict(0, 1, model.initialPos + (x - model.initialMouse) / model.barWidth);
+        const tick = 1 / (length - 1);
+        const realPos = Math.round(newPos / tick) * tick;
         return {
           ...model,
-          pos: newPos,
+          pos: realPos,
         };
       });
     },
@@ -110,21 +115,20 @@ const view = ({model, act, jumpTo, clear, current, length}: Props) => {
         <button class={cls(css.clear, !canClear)} on-click={canClear ? clear() : undefined}>clear history</button>
         <button class={cls(css.next, !hasNext)} on-click={jumpNext}>next state</button>
       </div>
-      <div
-        class={css.progress}
-      >
+      <div class={css.progress}>
         <div class={css.bar}>
           <div
             class={{[css.handle]: true, [css.activeHandle]: model.dragging}}
-            style={{left: `${model.pos * 100}%`, tranition: model.dragging ? "" : "all 0.2s"}}
-            on-mousedown={from(mouseEventW, act(Action.Start))}
+            style={{left: `${model.pos * 100}%`}}
+            on-mousedown={length > 1 && !model.dragging ? from(mouseEventW, act(Action.Start)) : undefined}
             doc-mousemove={model.dragging ? from(mouseEvent, act(Action.Move, jumpTo, length)) : undefined}
             doc-mouseup={model.dragging ? from(mouseEvent, act(Action.End)) : undefined}
             />
           </div>
       </div>
       <div class={css.position}>
-        {current + 1} : {length}
+        {current + 1}
+        <span class={css.total}> / {length}</span>
       </div>
     </div>
   );
