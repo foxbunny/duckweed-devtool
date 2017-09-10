@@ -1,6 +1,6 @@
 {
   "name": "duckweed-devtool",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Developer tool for inspecting, exporting, and importing Duckweed app models",
   "main": "dist/index.js",
   "scripts": {
