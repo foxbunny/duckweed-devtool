@@ -6,7 +6,7 @@ hook](./under-the-hood.md) documentation.
 
 ## The devtool toolbar
 
-![devtool toolbar](../media/expand-icon.jpg)
+![devtool toolbar](../media/icon.jpg)
 
 You the devtool-enabled application is started, a toolbar is shown in the
 lower-right corner of the tab. This toolbar will contain a duckweed leaf icon
