@@ -14,6 +14,12 @@ application to a previous state.
 - Model state inspection
 - In-browser (no extensions, works in any reasonably modern browser)
 
+## Demo
+
+The [Duckweed demo app](https://foxbunny.github.io/duckweed-tasks/) is build
+with the devtool. Also refer to the [manua](./docs/manual.md) to learn more
+about the devtool usage.
+
 ## Installation
 
 npm install --save-dev duckweed-devtool
