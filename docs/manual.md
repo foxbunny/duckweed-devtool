@@ -8,7 +8,7 @@ hook](./under-the-hood.md) documentation.
 
 ![devtool toolbar](../media/icon.jpg)
 
-You the devtool-enabled application is started, a toolbar is shown in the
+When the devtool-enabled application is started, a toolbar is shown in the
 lower-right corner of the tab. This toolbar will contain a duckweed leaf icon
 which can be used to open and close the inspection panel.
 
