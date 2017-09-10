@@ -7,7 +7,7 @@ Developer tool that allows developers to inspect the
 
 - [x] Time travel
 - [x] Model inspector
-- [ ] Polish the UI
+- [x] Polish the UI
 - [ ] Export and import application state
 - [ ] Tests
 - [ ] Publish on NPM
